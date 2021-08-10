@@ -49,15 +49,15 @@ def get_PandasPDBs(path):
 
     Arguments: 
         path, a directory with aligned PDB files (output from PyMol)
+
     Returns: 
         a pandas dataframe with 'Entry ID' and 'PandasPDB'
     '''
-    # print('Retrieving PDB files...')
-
     filenames = list(Path(path).glob('*.pdb'))
     structures = []
     IDs = []
-    for file in tqdm(filenames, total=len(filenames), desc='Reading PDB files'):
+    for file in tqdm(filenames, total=len(filenames),
+                     desc='Reading PDB files'):
         structures.append(get_PandasPDB(file))
         IDs.append(file.stem)
     data = {'Entry ID': IDs, 'PandasPDB': structures}
@@ -105,6 +105,7 @@ def fetch_and_save_pdb(pdbid, directory):
         if struct is not None:
             struct.to_pdb(path=pdb_file, gz=False)
 
+
 def retrieve_pdbs(PDB_list, directory):
     '''
     Given a table with pdb ids in 'Entry ID', download
@@ -113,3 +114,37 @@ def retrieve_pdbs(PDB_list, directory):
     tqdm.pandas(desc='Retrieve PDBs')
     PDB_list['Entry ID'].progress_apply(
         lambda pdb: fetch_and_save_pdb(pdb, directory))
+
+
+def get_xyz(PDB_df):
+    '''
+    Gets xyz coordinates for each atom in a set of PDB structures
+    Assumes numberings are consistent.
+    '''
+
+    coords_to_concat = []
+
+    for index, row in tqdm(PDB_df.iterrows(), total=len(PDB_df),
+                           desc='Getting atom coordinates'):
+        Entry_ID = row['Entry ID']
+        atom_coord = row['PandasPDB'].df['ATOM']
+        atom_coord = atom_coord[['atom_number', 'atom_name', 'residue_name',
+                                 "chain_id", 'residue_number', 'insertion',
+                                 'x_coord', 'y_coord', 'z_coord', 'occupancy',
+                                 'b_factor', 'alt_loc']]
+        atom_coord.insert(loc=0, column='Entry ID', value=Entry_ID)
+        coords_to_concat.append(atom_coord)
+
+    all_coords = pd.concat(coords_to_concat)
+    return all_coords
+
+
+def clean_multiconformers(atoms):
+    '''
+    Deletes entries  with multi-conformations.
+    '''
+    atoms = atoms.reset_index()
+
+    single_atoms = atoms.loc[atoms['occupancy'] == 1.0]
+
+    return single_atoms

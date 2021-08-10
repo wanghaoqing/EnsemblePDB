@@ -121,3 +121,57 @@ def reformat_dict(d):
     for key, val in d.items():
         entries.append(str(key) + ' : ' + str(val))
     return ' ~ '.join(entries)
+
+
+def contains_keyword(x, name, col='rscb-polymer-entity: description', index=0):
+    '''
+    Apply on rows of dataframes, filter any entry (row) where description of chain does not contain the input content.
+    Assumes the first polymer entity is always the major protein (not ligand).
+    Case insentitive.
+    Arguments:
+        x (row of dataframe)
+        name (str): the keyword to filter with.
+        col (str): column to filter the keyword on
+    Returns:
+        bool
+    '''
+    words = x[col].split('~')[0].lower()
+    if name.lower() in words:
+        return True
+    else:
+        return False
+
+
+def wrong_organism(x, name, orgs):
+    '''
+    Apply on rows of dataframes to check whether the protein is from a given organism
+    Arguments:
+        x (row of dataframe)
+        name (str): protein name.
+        org (list): organism scientific names
+    Returns:
+        bool
+    '''
+    organisms = x['pdbx-entity: organism scientific name'].lower().split('~')
+    wrong_org = True
+    for org in orgs:
+        if org.lower() in organisms[0].lower():
+            wrong_org = False
+    return wrong_org
+
+
+def check_mutations(x, name, max_muts):
+    '''
+    Apply on rows of dataframes to check whether the protein has mutation exceeding (>=) max mutation limit
+    Arguments:
+        x (row of dataframe)
+        name (str): protein name.
+        max_muts: maximum mutation number
+    Returns:
+        bool
+    '''
+    mutations = str(x['entity-polymer: mutation_count']).split('~')
+    if int(mutations[0]) >= max_muts:
+        return True
+    else:
+        return False

@@ -88,15 +88,17 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None,
     if not output_directory:
         parent_directory = str(Path(directory).parents[0])
         output_directory = get_dir(
-            parent_directory + '/Alignment_on_' + alignment_named + '_ref_' + reference_pdb)
-    output_pdbs_directory = get_dir(str(
-        output_directory)+'/Renumbered_aligned_pdbs_'+alignment_named + '_ref_' + reference_pdb)
+            f'{parent_directory}/Alignment_on_{alignment_named}_ref_{reference_pdb}')
+    output_pdbs_directory = get_dir(
+        f'{output_directory}/Renumbered_aligned_pdbs_{alignment_named}_ref_{reference_pdb}')
 
     # make sure to save reference pdb to new folder
     if reference_pdb_file is None:
-        copyfile(Path(directory, f"{reference_pdb}.pdb"), Path(output_pdbs_directory, f"{reference_pdb}.pdb"))
+        copyfile(Path(directory, f"{reference_pdb}.pdb"),
+                 Path(output_pdbs_directory, f"{reference_pdb}.pdb"))
     else:
-        copyfile(reference_pdb_file, Path(output_pdbs_directory, f"{reference_pdb}.pdb"))
+        copyfile(reference_pdb_file,
+                 Path(output_pdbs_directory, f"{reference_pdb}.pdb"))
 
     # Set-up algnment tables
     columns = ('RMSD after refinement',
@@ -110,25 +112,30 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None,
 
     # Align structures
     alignment_failed = []
-    for struct in tqdm(struct_list, total=len(struct_list), desc=f'Aligning: {alignment_named}'):
+    for struct in tqdm(struct_list, total=len(struct_list),
+                       desc=f'Aligning: {alignment_named}'):
 
         # align based on the specified alignment
         try:
             if alignment != '':
-                struct_align = struct + ' and ' + alignment
-                ref_align = reference_pdb + ' and ' + alignment
+                struct_align = f'{struct} and {alignment}'
+                ref_align = f'{reference_pdb} and {alignment}'
             else:
                 struct_align = struct
                 ref_align = reference_pdb
-            align_output = cmd.align(struct_align, ref_align, cutoff=cutoff, cycles=cycles,
-                                     gap=gap, max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix)
+            align_output = cmd.align(struct_align, ref_align, cutoff=cutoff,
+                                     cycles=cycles, gap=gap, max_gap=max_gap,
+                                     extend=extend, max_skip=max_skip,
+                                     matrix=matrix)
 
             # Save aligned pdb in new output directory
             cmd.save(Path(output_pdbs_directory, f"{struct}.pdb"), struct)
 
             # do not align but get all-atom rmsd values
-            output = cmd.align("/" + struct, "/" + reference_pdb, cycles=0, transform=0, cutoff=cutoff,
-                               gap=gap, max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix)
+            output = cmd.align(f"/{struct}", f"/{reference_pdb}", cycles=0,
+                               transform=0, cutoff=cutoff, gap=gap,
+                               max_gap=max_gap, extend=extend,
+                               max_skip=max_skip, matrix=matrix)
 
             # Save alignment details
             align_output = pd.DataFrame([align_output], columns=columns)
@@ -157,10 +164,13 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None,
         loc=0, column="Entry ID", value=EntryIDs)
 
     # save all alignment and rmsd information
-    all_atom_output_file = get_nonexistant_file(Path(output_directory, f'all_atom_rmsds_before_alignment.csv'))
-    alignment_output_file = get_nonexistant_file(Path(output_directory, f'alignment_{alignment_named}.csv'))
+    all_atom_output_file = get_nonexistant_file(
+        Path(output_directory, f'all_atom_rmsds_before_alignment.csv'))
+    alignment_output_file = get_nonexistant_file(
+        Path(output_directory, f'alignment_{alignment_named}.csv'))
 
-    print("Saving alignment for alignment " + alignment + " in ", str(alignment_output_file))
+    print("Saving alignment for alignment " +
+          alignment + " in ", str(alignment_output_file))
     print("Saving rmsd information in ", str(all_atom_output_file))
 
     rmsd_output.to_csv(all_atom_output_file, index=False)
@@ -170,17 +180,21 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None,
     return alignment_output, rmsd_output
 
 
-def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=None, naive=False, cutoff=2.0, cycles=5,
-                        gap=-10.0, max_gap=50, extend=-0.5, max_skip=0, matrix='BLOSUM62', align_method="align", output_directory=None):
+def multiple_alignments(directory, alignments=[""], loaded=False,
+                        reference_pdb=None, naive=False, cutoff=2.0, cycles=5,
+                        gap=-10.0, max_gap=50, extend=-0.5, max_skip=0,
+                        matrix='BLOSUM62', align_method="align",
+                        output_directory=None):
     '''
     Given a list of alignments performs all alignments
-    output the indiviual alignment summaries and save the aligned pdbs, and then output
-    a summary of the comparitive performance of all alignments
-    
+    output the indiviual alignment summaries and save the aligned pdbs, and then 
+    output a summary of the comparitive performance of all alignments
+
     Arguments: 
         directory (str): renamed PDB folder
         output_directory (str): folder to save all files to.
-        reference_pdb (str): the pdb id of reference, if not given assume it is at the top of the objects
+        reference_pdb (str): the pdb id of reference, if not given assume it is
+                        at the top of the objects
         naive (bool): if True do a naive alignment on all atoms {default: False}
         cutoff (float): outlier rejection cutoff in RMS {default: 2.0}
         cycles (int): maximum number of outlier rejection cycles
@@ -191,10 +205,10 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
         max_skip (int): {default: 0}
         matrix (String):  name of substitution matrix for sequence alignment
                             {default: 'BLOSUM62'}
-    
+
     Returns: 
         rmsd stats
-    
+
     Outputs: 
         save the alignment output and all-atom rmsd for all alignments, and
         pdbs for all alignment in labeled folders. Then save a summary statistics comparing
@@ -212,16 +226,20 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
 
     if not output_directory:
         parent_directory = str(Path(directory).parents[0])
-        all_output_directory = get_dir(
-            parent_directory + '/Alignments')
+        all_output_directory = get_dir(f'{parent_directory}/Alignments')
     else:
         all_output_directory = output_directory
+
     # Do a naive alignment
     if naive:
         alignment_directory = get_dir(
             str(all_output_directory)+'/Naive_alignment')
-        alignment_output, rmsd_output = align_all_pymol(directory, "", loaded=True, reference_pdb=reference_pdb, cutoff=cutoff, cycles=cycles, gap=gap,
-                                                        max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix, align_method=align_method, name="Naive", output_directory=str(alignment_directory))
+        alignment_output, rmsd_output = align_all_pymol(
+            directory, "", loaded=True, reference_pdb=reference_pdb,
+            cutoff=cutoff, cycles=cycles, gap=gap, max_gap=max_gap,
+            extend=extend, max_skip=max_skip, matrix=matrix,
+            align_method=align_method, name="Naive",
+            output_directory=str(alignment_directory))
 
         # Save naive to summary stats
         rmsd_stats = rmsd_output[
@@ -232,15 +250,16 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
 
     # Align all for every alignement
     for alignment in alignments:
-        # alignment_output_file = 'alignment_' + \
-        #     alignment.replace('/', '').replace('+', '') + '.csv'
-        # print(alignment)
         alignment_named = alignment.replace(
             '.', '_').replace('+', '_').replace(' ', '_')
         alignment_directory = get_dir(
-            str(all_output_directory)+'/Alignment_on_' + alignment_named)
-        alignment_output, rmsd_output = align_all_pymol(directory=directory, alignment=alignment, loaded=True, reference_pdb=reference_pdb, cutoff=cutoff, cycles=cycles,
-                                                        gap=gap, max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix, align_method=align_method, output_directory=str(alignment_directory))
+            f'{all_output_directory}/Alignment_on_{alignment_named}')
+        alignment_output, rmsd_output = align_all_pymol(
+            directory=directory, alignment=alignment, loaded=True,
+            reference_pdb=reference_pdb, cutoff=cutoff, cycles=cycles, gap=gap,
+            max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix,
+            align_method=align_method,
+            output_directory=str(alignment_directory))
         align_rmsd_sum = alignment_output[
             'RMSD after refinement'].describe().to_frame().T
         align_rmsd_sum['Alignment'] = alignment + '_all'

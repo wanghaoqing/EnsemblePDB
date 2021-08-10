@@ -12,26 +12,37 @@ import pandas as pd
 from pathlib import Path
 
 from EnsemblePDB.utils.file_management import get_nonexistant_file
+from EnsemblePDB.utils.table_utils import contains_keyword,wrong_organism,check_mutations
 
 
-def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None, max_res=None, organism=None, max_muts=None, output_directory=None):
+def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None,
+                    max_res=None, organism=None, max_muts=None,
+                    output_directory=None):
     '''
     Takes a csv from a pdb search and filters according to user-specified
     metrics. Saves a csv with columns for the filter results and a csv
     with only the structures that passed all filters.
-    Arguments: 
+
+    Arguments:
         summary_report_csv (str): The path to csv file of summary report
         protein_names (str): Name of the protein
         (optional)
-        exclude_terms (list of strings): terms to exclude from entity descriptions {default: None}
+        exclude_terms (list of strings): terms to exclude from entity
+                        descriptions {default: None}
         max_res (float): Maximum high-limit resolution to allow
         organism (list of strings): names of source organism {default: None}
-        max_muts (int): maximum number of mutations allowed for the protein {default: None}
-        refs_for_gaps = reference for sequence input should be input_# {default: None}
-        output_directory (str): path to save filtered csvs to. Default saves to the same directory that summary_report_csv is in {default: None}.
+        max_muts (int): maximum number of mutations allowed for the protein
+                        {default: None}
+        refs_for_gaps = reference for sequence input should be input_#
+                        {default: None}
+        output_directory (str): path to save filtered csvs to. Default saves to
+                        the same directory that summary_report_csv is in
+                        {default: None}.
+
     Returns:
         Dataframe, filtered summary report
     '''
+
     # Check user inputs
     assert(Path(summary_report_csv).is_file()), f"Summary report, "\
         f"{summary_report_csv}, is not a file."
@@ -61,89 +72,41 @@ def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None, max_re
         for term in exclude_terms:
             summary_report['Entity description contains excluded words'] = summary_report.apply(
                 lambda x: contains_keyword(x, term), axis=1)
-            summary_report["Filtering out"] = summary_report['Filtering out'] | summary_report["Entity description contains excluded words"]
+            summary_report["Filtering out"] = (summary_report['Filtering out'] |
+                                               summary_report["Entity description contains excluded words"])
     if max_res is not None:
         summary_report["Too low resolution"] = summary_report.apply(
             lambda x: True if x['pdbx: resolution'] > max_res else False, axis=1)
-        summary_report["Filtering out"] = summary_report['Filtering out'] | summary_report["Too low resolution"]
+        summary_report["Filtering out"] = (summary_report['Filtering out'] |
+                                           summary_report["Too low resolution"])
     if organism is not None:
         summary_report["Wrong organism"] = summary_report.apply(
             lambda x: wrong_organism(x, protein_name, organism), axis=1)
-        summary_report["Filtering out"] = summary_report['Filtering out'] | summary_report["Wrong organism"]
+        summary_report["Filtering out"] = (summary_report['Filtering out'] |
+                                           summary_report["Wrong organism"])
     if max_muts is not None:
         summary_report["Too many mutations"] = summary_report.apply(
             lambda x: check_mutations(x, protein_name, max_muts), axis=1)
-        summary_report["Filtering out"] = summary_report['Filtering out'] | summary_report["Too many mutations"]
+        summary_report["Filtering out"] = (summary_report['Filtering out'] |
+                                           summary_report["Too many mutations"])
 
-    filtered = summary_report.loc[~summary_report['Filtering out']]\
-        .drop(['Filtering out', 'Correct protein', 'Entity description contains excluded words',    'Too low resolution', 'Wrong organism', 'Too many mutations'], axis=1)
+    filtered = summary_report.loc[~summary_report['Filtering out']].drop(
+        ['Filtering out', 'Correct protein',
+         'Entity description contains excluded words', 'Too low resolution',
+         'Wrong organism', 'Too many mutations'], axis=1)
     if not output_directory:
         parent_dir = str(Path(summary_report_csv).parents[0])
         output_file_full = get_nonexistant_file(
-            parent_dir+'/summary_report_'+protein_name+'_with_filter.csv')
+            f'{parent_dir}/summary_report_{protein_name}_with_filter.csv')
         output_file = get_nonexistant_file(
-            parent_dir+'/summary_report_'+protein_name+'_filtered.csv')
+            f'{parent_dir}/summary_report_{protein_name}_filtered.csv')
     else:
         output_file_full = get_nonexistant_file(
-            output_directory+'/summary_report_'+protein_name+'_with_filter.csv')
+            f'{output_directory}/summary_report_{protein_name}_with_filter.csv')
         output_file = get_nonexistant_file(
-            output_directory+'/summary_report_'+protein_name+'_filtered.csv')
+            f'{output_directory}/summary_report_{protein_name}_filtered.csv')
     filtered.to_csv(output_file)
     summary_report.to_csv(output_file_full)
     print(f'Saved filtered summary report to {output_file}')
     print(f'Saved full summary report with filters to {output_file_full}')
     return filtered
-
-
-def contains_keyword(x, name, col='rscb-polymer-entity: description', index=0):
-    '''
-    Apply on rows of dataframes, filter any entry (row) where description of chain does not contain the input content.
-    Assumes the first polymer entity is always the major protein (not ligand).
-    Case insentitive. 
-    Arguments:
-        x (row of dataframe)
-        name (str): the keyword to filter with.
-        col (str): column to filter the keyword on    
-    Returns:
-        bool
-    '''
-    words = x[col].split('~')[0].lower()
-    if name.lower() in words:
-        return True
-    else:
-        return False
-
-
-def wrong_organism(x, name, orgs):
-    '''
-    Apply on rows of dataframes to check whether the protein is from a given organism
-    Arguments:
-        x (row of dataframe)
-        name (str): protein name.
-        org (list): organism scientific names
-    Returns:
-        bool
-    '''
-    organisms = x['pdbx-entity: organism scientific name'].lower().split('~')
-    wrong_org = True
-    for org in orgs:
-        if org.lower() in organisms[0].lower():
-            wrong_org = False
-    return wrong_org
-
-
-def check_mutations(x, name, max_muts):
-    '''
-    Apply on rows of dataframes to check whether the protein has mutation exceeding (>=) max mutation limit
-    Arguments:
-        x (row of dataframe)
-        name (str): protein name.
-        max_muts: maximum mutation number
-    Returns:
-        bool
-    '''
-    mutations = str(x['entity-polymer: mutation_count']).split('~')
-    if int(mutations[0]) >= max_muts:
-        return True
-    else:
-        return False
