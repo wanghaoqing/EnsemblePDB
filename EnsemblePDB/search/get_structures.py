@@ -12,8 +12,8 @@ Last edited:
 '''
 
 import pandas as pd
-from pseudo_ensemble.utils import file_management
-from pseudo_ensemble.utils.biopandas_utils import retrieve_pdbs
+from EnsemblePDB.utils import file_management
+from EnsemblePDB.utils.biopandas_utils import retrieve_pdbs
 
 
 def download_pdbs(ensemble_csv, output_folder=None):

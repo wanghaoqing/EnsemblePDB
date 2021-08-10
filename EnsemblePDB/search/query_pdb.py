@@ -17,7 +17,7 @@ import pandas as pd
 from Bio.pairwise2 import format_alignment
 import pypdb
 
-from pseudo_ensemble.utils import file_management, table_utils, biopandas_utils, sequence_alignment
+from EnsemblePDB.utils import file_management, table_utils, biopandas_utils, sequence_alignment
 
 
 def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',

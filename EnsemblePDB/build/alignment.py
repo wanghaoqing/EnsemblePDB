@@ -11,8 +11,8 @@ Last edited:
     2020-08-10
 '''
 
-from pseudo_ensemble.visualize import load_ensemble
-from pseudo_ensemble.utils import file_management
+from EnsemblePDB.visualize import load_ensemble
+from EnsemblePDB.utils import file_management
 from os import path
 from shutil import copyfile
 import glob

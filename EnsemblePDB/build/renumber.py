@@ -18,7 +18,7 @@ import pandas as pd
 import numpy as np
 from biopandas.pdb import PandasPdb
 from tqdm import tqdm
-from pseudo_ensemble.utils import file_management, biopandas_utils, table_utils, sequence_alignment
+from EnsemblePDB.utils import file_management, biopandas_utils, table_utils, sequence_alignment
 
 
 def download_and_renumber(summary_report_csv, reference_pdb=None,

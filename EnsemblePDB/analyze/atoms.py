@@ -16,7 +16,7 @@ import numpy as np
 from tqdm import tqdm
 from functools import reduce
 from sklearn.utils import resample
-from pseudo_ensemble.utils import biopandas_utils, file_management
+from EnsemblePDB.utils import biopandas_utils, file_management
 
 
 def get_MDev(directory, chains, reference_PDB, multiconformers=False, output_directory=None, bootstrap=True, iter=50):

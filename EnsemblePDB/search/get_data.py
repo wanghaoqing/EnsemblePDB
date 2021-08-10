@@ -3,7 +3,9 @@
 TODO 
 
 Author:
-    Rachael Kretsch (rkretsch@stanford.edu), Siyuan Du, Jacob Parres-Gold
+    Rachael Kretsch (rkretsch@stanford.edu), 
+    Siyuan Du, 
+    Jacob Parres-Gold
 
 Last edited:
     2021-08-10

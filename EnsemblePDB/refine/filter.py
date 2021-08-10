@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from pseudo_ensemble.utils import file_management
+from EnsemblePDB.utils import file_management
 
 
 def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None, max_res=None, organism=None, max_muts=None, output_directory=None):
