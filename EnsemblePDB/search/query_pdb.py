@@ -28,6 +28,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     '''
     Will take sequence(s) or reference pdb chain(s) and will search 
     the PDB for structures of similar sequences. 
+
     Args: 
         reference_pdb (str): pdb id ('XXXX') to be the reference.
         reference_chains (list of str): list of the chains of the reference
@@ -55,6 +56,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
                 score_gap_func_ref, score_gap_func_seq,
         output_dir (string): if not working in data directory you can specify where
                         to save output {default: "."}
+
     Returns: 
         Pandas dataframe: summary output of the similar pdb found, 
             including the chains that aligned with to 
@@ -143,7 +145,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     for i, seq in enumerate(sequences):
         search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
         print(f"Saving sequence search raw output in {search_sum_file}.")
-        temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
+        temp_list = _search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
 
         if seq_chain_list is None:
             seq_chain_list = temp_list
@@ -163,7 +165,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     # get all chains and there alignments
     print("Adding all chain alignment information. For large datasets this may"
           " take some time.")
-    output = get_all_chain_alignments_for_table_multi(seq_id,
+    output = _get_all_chain_alignments_for_table_multi(seq_id,
                                                       output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
     output = output.applymap(delete_all_one_value)
 
@@ -292,7 +294,7 @@ def query_by_sequence(sequences,
     for i, seq in enumerate(sequences):
         search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
         print(f"Saving sequence search raw output in {search_sum_file}.")
-        temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
+        temp_list = _search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
 
         if seq_chain_list is None:
             seq_chain_list = temp_list
@@ -312,7 +314,7 @@ def query_by_sequence(sequences,
     # get all chains and there alignments
     print("Adding all chain alignment information. For large datasets this may"
           " take some time.")
-    output = get_all_chain_alignments_for_table_multi(seq_id,
+    output = _get_all_chain_alignments_for_table_multi(seq_id,
                                                       output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
     output = output.applymap(delete_all_one_value)
 
@@ -325,12 +327,13 @@ def query_by_sequence(sequences,
     output.to_csv(output_file, index=False)
     return output
 
+
 ###############################################################################
 # Helper functions
 ###############################################################################
 
 
-def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=10):
+def _search_seq(sequence, seq_id, search_output_file, chain_name, evalue=10):
     '''
     Takes in a sequence and a threshold for sequence identity and return a
     table with sequences that reach the threshold with their pdb_id, chaiin
@@ -384,7 +387,7 @@ def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=10):
     return data
 
 
-def get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs, chain_names, pairwise_align_options, output_dir, min_length):
+def _get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs, chain_names, pairwise_align_options, output_dir, min_length):
     '''
     Gets alignments for all matching chains of all pdbs in table, given a list
     of reference_seqs and their corresponding reference chains.
@@ -397,7 +400,7 @@ def get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs
     # For each reference chain get all chain alignments
     for seq, chain in zip(reference_seqs, chain_names):
         search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{chain}.fasta'))
-        output, non_aligned = get_all_chain_alignments_for_table(f"{search_sum_file}", seq_id, output, seq, chain, pairwise_align_options, min_length)
+        output, non_aligned = _get_all_chain_alignments_for_table(f"{search_sum_file}", seq_id, output, seq, chain, pairwise_align_options, min_length)
 
         # Chains not aligned to any of the references make it to never_aligned
         if never_aligned is None:
@@ -416,13 +419,11 @@ def get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs
     return output
 
 
-def get_all_chain_alignments_for_table(search_output_fasta, seq_id, input_table, reference_seq, chain_name, pairwise_align_options, min_length):
+def _get_all_chain_alignments_for_table(search_output_fasta, seq_id, input_table, reference_seq, chain_name, pairwise_align_options, min_length):
     '''
     Given a table with pdbs, adds columns indicating how each chain of each
     pdb aligns to the given reference sequence.
     '''
-
-    # COMMENT: just a reminder to check later code using this column name as key, last time I checked the names did not match, ignore if fixed
     chains = f'Align ref {chain_name}: order of chains'
     seq_align_col = f'Align ref {chain_name}: formatted alignment'
     ref_seq_aligned_col = f"Align ref {chain_name}: aligned ref sequence"
@@ -434,13 +435,11 @@ def get_all_chain_alignments_for_table(search_output_fasta, seq_id, input_table,
     # For each row get all relevant chain alignments
     output = input_table.copy()
     output[chains], output[seq_align_col], output[ref_seq_aligned_col], output[aligned_col], output[ali_score], output[
-        num_matches_col], output[chain_al], non_aligned = zip(*output['Entry ID'].map(lambda pdb: get_all_chain_alignments(search_output_fasta, seq_id, pdb, reference_seq, pairwise_align_options, min_length)))
+        num_matches_col], output[chain_al], non_aligned = zip(*output['Entry ID'].map(lambda pdb: _get_all_chain_alignments(search_output_fasta, seq_id, pdb, reference_seq, pairwise_align_options, min_length)))
     return output, non_aligned
 
-# TODO want to extract the pdb website table into my own dictionary set to interegate it more....
 
-
-def get_all_chain_alignments(search_output_fasta, seq_id, pdbid, reference_seq, pairwise_align_options, min_length):
+def _get_all_chain_alignments(search_output_fasta, seq_id, pdbid, reference_seq, pairwise_align_options, min_length):
     """
     given a pdb id and a reference sequence, returns the alignment
     of every chain of that pdb with the reference sequence
