@@ -6,22 +6,17 @@ Author:
     Rachael Kretsch (rkretsch@stanford.edu), 
     Siyuan Du, 
     Jacob Parres-Gold
-
-Last edited:
-    2021-08-10
 """
 
 from pathlib import Path
 import requests
 import json
-from os import system
 from tqdm import tqdm
 
 import pandas as pd
-from Bio import AlignIO
-import numpy as np
 
-from pseudo_ensemble.utils import file_management, table_utils
+from pseudo_ensemble.utils.file_management import get_nonexistant_file
+from pseudo_ensemble.utils.table_utils import get_list_from_table_entry,delete_all_one_value
 
 ###############################################################################
 # Global data
@@ -164,25 +159,25 @@ def get_pdb_data(ensemble_csv, desired_cols=minimum_info, label='MyProtein', inf
     for pdb in tqdm(pdb_ids, total=len(pdb_ids), desc='Adding data'):
 
         if "entry" not in info_not_needed:
-            info = get_pdb_entry_data(pdb, desired_cols, cols_to_group)
+            info = _get_pdb_entry_data(pdb, desired_cols, cols_to_group)
         if "entry: pubmed" not in info_not_needed:
-            pubmed_info = get_pubmed_entry_data(
+            pubmed_info = _get_pubmed_entry_data(
                 pdb, desired_cols, cols_to_group)
-            info = combine_dict_info(info, pubmed_info, [])
+            info = _combine_dict_info(info, pubmed_info, [])
 
         if "entity" not in info_not_needed or "entity: uniprot" not in info_not_needed:
             old_info = list(info.keys())
-            entities = table_utils.get_list_from_table_entry(
+            entities = get_list_from_table_entry(
                 info['rcsb_entry_container_identifiers.entity_ids'])
             for entity in entities:
                 if "entity" not in info_not_needed:
-                    entity_info = get_pdb_entity_data(
+                    entity_info = _get_pdb_entity_data(
                         pdb, entity, desired_cols, cols_to_group)
-                    info = combine_dict_info(info, entity_info, old_info)
+                    info = _combine_dict_info(info, entity_info, old_info)
                 if "entity: uniprot" not in info_not_needed:
-                    uniprot_info = get_uniprot_entity_data(
+                    uniprot_info = _get_uniprot_entity_data(
                         pdb, entity, desired_cols, cols_to_group)
-                    info = combine_dict_info(info, uniprot_info, old_info)
+                    info = _combine_dict_info(info, uniprot_info, old_info)
 
         if "instance" not in info_not_needed:
             old_info = list(info.keys())
@@ -191,43 +186,42 @@ def get_pdb_data(ensemble_csv, desired_cols=minimum_info, label='MyProtein', inf
             chains = [chr(i) for i in range(65, 65+int(num_chains))]
             # these chains are pdb, author may have other, but pdb just list alphabetically.
             for chain in chains:
-                chain_info = get_pdb_instance_data(
+                chain_info = _get_pdb_instance_data(
                     pdb, chain, desired_cols, cols_to_group)
-                info = combine_dict_info(info, chain_info, old_info)
+                info = _combine_dict_info(info, chain_info, old_info)
 
         if "assembly" not in info_not_needed:
             old_info = list(info.keys())
-            assemblies = table_utils.get_list_from_table_entry(
+            assemblies = get_list_from_table_entry(
                 info['rcsb_entry_container_identifiers.assembly_ids'])
             for assembly in assemblies:
-                assembly_info = get_assembly_data(
+                assembly_info = _get_assembly_data(
                     pdb, assembly, desired_cols, cols_to_group)
-                info = combine_dict_info(info, assembly_info, old_info)
+                info = _combine_dict_info(info, assembly_info, old_info)
 
         if ("chem" not in info_not_needed or "chem: drugbank" not in info_not_needed) and\
                 ("pdbx_entity_nonpoly.comp_id" in info.keys()):
             old_info = list(info.keys())
             if int(info['rcsb_entry_info.nonpolymer_entity_count']) > 0:
-                chems = table_utils.get_list_from_table_entry(
+                chems = get_list_from_table_entry(
                     info['pdbx_entity_nonpoly.comp_id'])
                 for chem in chems:
                     if "chem" not in info_not_needed:
-                        chem_info = get_chemcomp_data(
+                        chem_info = _get_chemcomp_data(
                             chem, desired_cols, cols_to_group)
-                        info = combine_dict_info(info, chem_info, old_info)
+                        info = _combine_dict_info(info, chem_info, old_info)
                     if "chem: drugbank" not in info_not_needed:
-                        drugbank_info = get_drugbank_chemcomp_data(
+                        drugbank_info = _get_drugbank_chemcomp_data(
                             chem, desired_cols, cols_to_group)
-                        info = combine_dict_info(info, drugbank_info, old_info)
+                        info = _combine_dict_info(
+                            info, drugbank_info, old_info)
 
-        # TODO mem issues if they want lots of data
-        # write to file??? need more memory goodness....
         all_info[pdb] = info
     df = pd.DataFrame.from_dict(all_info, orient='index')
     df['Entry ID'] = df.index
     df = data.merge(df, how="outer", on="Entry ID")
     if not output_dir:
-        output_file = file_management.get_nonexistant_file(
+        output_file = get_nonexistant_file(
             str(Path(ensemble_csv).parents[0])+'/summary_report_'+label+'.csv')
     else:
         output_file = output_dir + '/summary_report_'+label+'.csv'
@@ -235,23 +229,18 @@ def get_pdb_data(ensemble_csv, desired_cols=minimum_info, label='MyProtein', inf
     missing_cols = [col for col in desired_cols if col not in df.columns]
     if len(missing_cols) > 0:
         print("WARNING: No data found for", missing_cols)
-    df = df.applymap(table_utils.delete_all_one_value)
+    df = df.applymap(delete_all_one_value)
     df = df.rename(columns=desired_cols)
     df.to_csv(output_file, index=False)
     return df
 
-# https://data.rcsb.org/redoc/index.html
-# https://data.rcsb.org/data-attributes.html
-# https://search.rcsb.org/search-attributes.html
 
 ###############################################################################
 # Helper functions
 ###############################################################################
 
-# Get PDB data
 
-
-def fetch_pdb_data(url, pdb, alt_url=None):
+def _fetch_pdb_data(url, pdb, alt_url=None):
     ''' fetch data from a url
     Arguments:
         url (str): base url to fetch from
@@ -267,22 +256,23 @@ def fetch_pdb_data(url, pdb, alt_url=None):
             response = requests.get(url+pdb)
             break
         except requests.exceptions.ConnectionError:
-            print("Connection Error")
             if counter == 3:
-                raise Exception("Too Many Connection Errors")
+                source = url.split("/")[6].split("_")[-1]
+                raise Exception("Too Many Connection Errors for:", source, pdb)
     if response is None or response.status_code != 200:
         if alt_url is not None:
             if len(alt_url) == 1:
-                return fetch_pdb_data(alt_url[0], pdb)
+                return _fetch_pdb_data(alt_url[0], pdb)
             else:
-                return fetch_pdb_data(alt_url[0], pdb, alt_url[1:])
-        source = url.split("/")[6].split("_")[-1]
-        # print ('Failed to retrieve data for:',source,pdb)
+                return _fetch_pdb_data(alt_url[0], pdb, alt_url[1:])
+        else:
+            source = url.split("/")[6].split("_")[-1]
+            print('Failed to retrieve data for:', source, pdb)
         return
     return json.loads(response.text)
 
 
-def get_pdb_entry_data(pdb, desired_cols, cols_to_group=[]):
+def _get_pdb_entry_data(pdb, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb entry
     Arguments: 
         pdb (str): pbd id "XXXX"
@@ -296,10 +286,11 @@ def get_pdb_entry_data(pdb, desired_cols, cols_to_group=[]):
         dict flatten with only information in desired_cols
     '''
     url = 'https://data.rcsb.org/rest/v1/core/entry/'
-    return parse_dict_info(fetch_pdb_data(url, pdb), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, pdb), desired_cols,
+                            cols_to_group=cols_to_group)
 
 
-def get_pubmed_entry_data(pdb, desired_cols, cols_to_group=[]):
+def _get_pubmed_entry_data(pdb, desired_cols, cols_to_group=[]):
     ''' fetch pubmed data regarding the pdb entry
     Arguments: 
         pdb (str): pbd id "XXXX"
@@ -313,10 +304,11 @@ def get_pubmed_entry_data(pdb, desired_cols, cols_to_group=[]):
         dict flatten with only information in desired_cols
     '''
     url = 'https://data.rcsb.org/rest/v1/core/uniprot/'
-    return parse_dict_info(fetch_pdb_data(url, pdb), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, pdb), desired_cols,
+                            cols_to_group=cols_to_group)
 
 
-def get_pdb_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
+def _get_pdb_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb entity
     Arguments: 
         pdb (str): pbd id "XXXX"
@@ -333,10 +325,11 @@ def get_pdb_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
     url = 'https://data.rcsb.org/rest/v1/core/polymer_entity/'
     alt_urls = ['https://data.rcsb.org/rest/v1/core/nonpolymer_entity/',
                 'https://data.rcsb.org/rest/v1/core/branched_entity/']
-    return parse_dict_info(fetch_pdb_data(url, f"{pdb}/{entity}", alt_urls), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, f"{pdb}/{entity}", alt_urls),
+                            desired_cols, cols_to_group=cols_to_group)
 
 
-def get_uniprot_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
+def _get_uniprot_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
     ''' fetch uniprot data regarding the pdb entity
     Arguments: 
         pdb (str): pbd id "XXXX"
@@ -351,10 +344,11 @@ def get_uniprot_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
         dict flatten with only information in desired_cols
     '''
     url = 'https://data.rcsb.org/rest/v1/core/uniprot/'
-    return parse_dict_info(fetch_pdb_data(url, f"{pdb}/{entity}"), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, f"{pdb}/{entity}"),
+                            desired_cols, cols_to_group=cols_to_group)
 
 
-def get_pdb_instance_data(pdb, chain, desired_cols, cols_to_group=[]):
+def _get_pdb_instance_data(pdb, chain, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb instance (aka chain)
     Arguments: 
         pdb (str): pbd id "XXXX"
@@ -371,10 +365,11 @@ def get_pdb_instance_data(pdb, chain, desired_cols, cols_to_group=[]):
     url = 'https://data.rcsb.org/rest/v1/core/polymer_entity_instance/'
     alt_urls = ['https://data.rcsb.org/rest/v1/core/nonpolymer_entity_instance/',
                 'https://data.rcsb.org/rest/v1/core/branched_entity_instance/']
-    return parse_dict_info(fetch_pdb_data(url, f"{pdb}/{chain}", alt_urls), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, f"{pdb}/{chain}", alt_urls),
+                            desired_cols, cols_to_group=cols_to_group)
 
 
-def get_assembly_data(pdb, assembly, desired_cols, cols_to_group=[]):
+def _get_assembly_data(pdb, assembly, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb assembly
     Arguments: 
         pdb (str): pbd id "XXXX"
@@ -389,10 +384,11 @@ def get_assembly_data(pdb, assembly, desired_cols, cols_to_group=[]):
         dict flatten with only information in desired_cols
     '''
     url = 'https://data.rcsb.org/rest/v1/core/assembly/'
-    return parse_dict_info(fetch_pdb_data(url, f"{pdb}/{assembly}"), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, f"{pdb}/{assembly}"),
+                            desired_cols, cols_to_group=cols_to_group)
 
 
-def get_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
+def _get_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding a chemical
     Arguments: 
         comp_id (str): unique id of that chemical
@@ -406,10 +402,11 @@ def get_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
         dict flatten with only information in desired_cols
     '''
     url = 'https://data.rcsb.org/rest/v1/core/chemcomp/'
-    return parse_dict_info(fetch_pdb_data(url, comp_id), desired_cols, cols_to_group=cols_to_group)
+    return _parse_dict_info(_fetch_pdb_data(url, comp_id), desired_cols,
+                            cols_to_group=cols_to_group)
 
 
-def get_drugbank_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
+def _get_drugbank_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
     ''' fetch drugbank data regarding a chemical
     Arguments: 
         comp_id (str): unique id of that chemical
@@ -423,12 +420,11 @@ def get_drugbank_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
         dict flatten with only information in desired_cols
     '''
     url = 'https://data.rcsb.org/rest/v1/core/drugbank/'
-    return parse_dict_info(fetch_pdb_data(url, comp_id), desired_cols, cols_to_group=cols_to_group)
-
-# Intepret PDB data
+    return _parse_dict_info(_fetch_pdb_data(url, comp_id), desired_cols, cols_to_group=cols_to_group)
 
 
-def parse_dict_info(info, desired_cols, prefix="", cols_to_group=[], collapsed_dict=None, check_group=None):
+def _parse_dict_info(info, desired_cols, prefix="", cols_to_group=[],
+                     collapsed_dict=None, check_group=None):
     '''
     Given the raw output of a fetch from pdb recurssively flattens the
     the dictionary and making any multiple instances into a list string sep: (" ~ ")
@@ -470,14 +466,14 @@ def parse_dict_info(info, desired_cols, prefix="", cols_to_group=[], collapsed_d
             else:
                 # . to match PDB website
                 next_prefix = prefix+"."+key
-            temp_collapsed_dict = combine_dict_info(temp_collapsed_dict,
-                                                    parse_dict_info(value, desired_cols, next_prefix, cols_to_group, collapsed_dict=None), old_info=[])
+            temp_collapsed_dict = _combine_dict_info(temp_collapsed_dict,
+                                                     _parse_dict_info(value, desired_cols, next_prefix, cols_to_group, collapsed_dict=None), old_info=[])
         if check_group is not None:
             for group in range(0, len(cols_to_group)):
                 if check_group[group]:
                     for col in [col for col in cols_to_group[group] if (col not in temp_collapsed_dict)]:
-                        temp_collapsed_dict = combine_dict_info(temp_collapsed_dict,
-                                                                {col: 'None'}, old_info=[])
+                        temp_collapsed_dict = _combine_dict_info(temp_collapsed_dict,
+                                                                 {col: 'None'}, old_info=[])
         return temp_collapsed_dict
     elif type(info) == list:
         new_collapsed_dict = collapsed_dict.copy()
@@ -487,9 +483,9 @@ def parse_dict_info(info, desired_cols, prefix="", cols_to_group=[], collapsed_d
                 check_group = {}
                 check_group[group] = True
         for item in info:
-            temp = parse_dict_info(
+            temp = _parse_dict_info(
                 item, desired_cols, prefix, cols_to_group, collapsed_dict, check_group)
-            new_collapsed_dict = combine_dict_info(
+            new_collapsed_dict = _combine_dict_info(
                 new_collapsed_dict, temp, old_info)
         return new_collapsed_dict
     else:
@@ -498,14 +494,16 @@ def parse_dict_info(info, desired_cols, prefix="", cols_to_group=[], collapsed_d
         return collapsed_dict
 
 
-def combine_dict_info(new_collapsed_dict, temp, old_info):
+def _combine_dict_info(new_collapsed_dict, temp, old_info):
     '''
     Given 2 dictionaries and a list of keys not to change
     creates a new dictionary with combined values
+
     Arguments: 
         new_collapsed_dict (dict): dictionary to add to
         temp (dict): dictionary to add from
         old_info (list of str): list of keys not to change
+
     Output: 
         new_collapsed_dict with the information from temp added
     '''
@@ -514,6 +512,6 @@ def combine_dict_info(new_collapsed_dict, temp, old_info):
             if key not in new_collapsed_dict:
                 new_collapsed_dict[key] = value
             else:
-                new_collapsed_dict[key] = table_utils.delete_all_one_value(
+                new_collapsed_dict[key] = delete_all_one_value(
                     new_collapsed_dict[key]+" ~ "+str(value))
     return new_collapsed_dict

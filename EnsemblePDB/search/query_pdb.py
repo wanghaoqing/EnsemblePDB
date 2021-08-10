@@ -6,9 +6,6 @@ Authors:
     Rachael Kretsch (rkretsch@stanford.edu), 
     Siyuan Du, 
     Jacob Parres-Gold
-
-Last edited:
-    2021-08-10
 """
 
 from pathlib import Path
@@ -17,8 +14,10 @@ import pandas as pd
 from Bio.pairwise2 import format_alignment
 import pypdb
 
-from EnsemblePDB.utils import file_management, table_utils, biopandas_utils, sequence_alignment
-
+from EnsemblePDB.utils.table_utils import delete_all_one_value,get_overlap,get_union,get_table_entry_from_list
+from EnsemblePDB.utils.sequence_alignment import specific_pairwise2_align
+from EnsemblePDB.utils.file_management import get_nonexistant_file
+from EnsemblePDB.utils.biopandas_utils import get_pdb_struct,get_chain_seq
 
 def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
                      macromolecule_name=None, seq_id=0.95,
@@ -127,10 +126,10 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
 
     # get the sequence of the reference chain(s)
     print(f"Extracting sequence(s) of {reference_pdb}.")
-    structure = biopandas_utils.get_pdb_struct(reference_pdb)
+    structure = get_pdb_struct(reference_pdb)
     sequences = []
     for ref_chain in reference_chains:
-        sequences.append(biopandas_utils.get_chain_seq(structure, ref_chain))
+        sequences.append(get_chain_seq(structure, ref_chain))
     if len(sequences) > 1:
         i = 0
         while i < len(sequences):
@@ -142,7 +141,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     # search the pdb for the sequence and return those with >=seq_id
     seq_chain_list = None
     for i, seq in enumerate(sequences):
-        search_sum_file = file_management.get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
+        search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
         print(f"Saving sequence search raw output in {search_sum_file}.")
         temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
 
@@ -166,10 +165,10 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
           " take some time.")
     output = get_all_chain_alignments_for_table_multi(seq_id,
                                                       output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
-    output = output.applymap(table_utils.delete_all_one_value)
+    output = output.applymap(delete_all_one_value)
 
     # save and return output
-    output_file = file_management.get_nonexistant_file(
+    output_file = get_nonexistant_file(
         Path(output_dir, "seq_search_output_"+label+".csv"))
 
     print(f"Saved output to {output_file}. To obtain PDB summary info, run "
@@ -291,7 +290,7 @@ def query_by_sequence(sequences,
     # search the pdb for the sequence and return those with >= seqid
     seq_chain_list = None
     for i, seq in enumerate(sequences):
-        search_sum_file = file_management.get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
+        search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
         print(f"Saving sequence search raw output in {search_sum_file}.")
         temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
 
@@ -315,10 +314,10 @@ def query_by_sequence(sequences,
           " take some time.")
     output = get_all_chain_alignments_for_table_multi(seq_id,
                                                       output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
-    output = output.applymap(table_utils.delete_all_one_value)
+    output = output.applymap(delete_all_one_value)
 
     # save and return output
-    output_file = file_management.get_nonexistant_file(
+    output_file = get_nonexistant_file(
         Path(output_dir, "seq_search_output_"+label+".csv"))
 
     print(f"Saved output to {output_file}. To obtain PDB summary info, run "
@@ -397,7 +396,7 @@ def get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs
 
     # For each reference chain get all chain alignments
     for seq, chain in zip(reference_seqs, chain_names):
-        search_sum_file = file_management.get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{chain}.fasta'))
+        search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{chain}.fasta'))
         output, non_aligned = get_all_chain_alignments_for_table(f"{search_sum_file}", seq_id, output, seq, chain, pairwise_align_options, min_length)
 
         # Chains not aligned to any of the references make it to never_aligned
@@ -405,11 +404,11 @@ def get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs
             never_aligned = pd.Series(non_aligned)
         else:
             never_aligned = never_aligned.combine(
-                pd.Series(non_aligned), func=table_utils.get_overlap)
+                pd.Series(non_aligned), func=get_overlap)
         if all_chains is None:
             all_chains = output[f"Align ref {chain}: order of chains"]
         else:
-            all_chains = all_chains.combine(output[f"Align ref {chain}: order of chains"], func=table_utils.get_union)
+            all_chains = all_chains.combine(output[f"Align ref {chain}: order of chains"], func=get_union)
 
     # Add column for chains that are not aligned to any refernce
     output["Align: Non-aligned chains"] = never_aligned
@@ -453,7 +452,7 @@ def get_all_chain_alignments(search_output_fasta, seq_id, pdbid, reference_seq, 
     """
 
     # Get sequence of the structure
-    struct = biopandas_utils.get_pdb_struct(pdbid)
+    struct = get_pdb_struct(pdbid)
     if struct is None:
         return "", "", "", "", "", "", "", "", ""
     seq = struct.amino3to1()
@@ -471,7 +470,7 @@ def get_all_chain_alignments(search_output_fasta, seq_id, pdbid, reference_seq, 
             seq.loc[seq['chain_id'] == chain_id, 'residue_name'])
 
         # Align according to inputted params
-        alignments = sequence_alignment.specific_pairwise2_align(
+        alignments = specific_pairwise2_align(
             reference_seq, seqB, pairwise_align_options)
 
         # If alignment successful and to output
@@ -503,13 +502,13 @@ def get_all_chain_alignments(search_output_fasta, seq_id, pdbid, reference_seq, 
             chain.append(chain_id)
 
     # Format output and return
-    chain = table_utils.get_table_entry_from_list(chain)
-    output = table_utils.get_table_entry_from_list(output)
-    ref_aligned = table_utils.get_table_entry_from_list(ref_aligned)
-    aligned = table_utils.get_table_entry_from_list(aligned)
-    align_score = table_utils.get_table_entry_from_list(align_score)
-    num_matches = table_utils.get_table_entry_from_list(num_matches)
-    aligned_chain = table_utils.get_table_entry_from_list(aligned_chain)
-    non_aligned = table_utils.get_table_entry_from_list(non_aligned)
+    chain = get_table_entry_from_list(chain)
+    output = get_table_entry_from_list(output)
+    ref_aligned = get_table_entry_from_list(ref_aligned)
+    aligned = get_table_entry_from_list(aligned)
+    align_score = get_table_entry_from_list(align_score)
+    num_matches = get_table_entry_from_list(num_matches)
+    aligned_chain = get_table_entry_from_list(aligned_chain)
+    non_aligned = get_table_entry_from_list(non_aligned)
 
     return chain, output, ref_aligned, aligned, align_score, num_matches, aligned_chain, non_aligned

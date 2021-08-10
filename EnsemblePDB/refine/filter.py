@@ -6,16 +6,12 @@ Authors:
     Rachael Kretsch (rkretsch@stanford.edu)
     Siyuan Du (dusiyuan@stanford.edu)
     Jacob Parres-Gold
-
-Last edited:
-    2021-08-10
 """
 
-import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from EnsemblePDB.utils import file_management
+from EnsemblePDB.utils.file_management import get_nonexistant_file
 
 
 def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None, max_res=None, organism=None, max_muts=None, output_directory=None):
@@ -83,14 +79,14 @@ def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None, max_re
         .drop(['Filtering out', 'Correct protein', 'Entity description contains excluded words',    'Too low resolution', 'Wrong organism', 'Too many mutations'], axis=1)
     if not output_directory:
         parent_dir = str(Path(summary_report_csv).parents[0])
-        output_file_full = file_management.get_nonexistant_file(
+        output_file_full = get_nonexistant_file(
             parent_dir+'/summary_report_'+protein_name+'_with_filter.csv')
-        output_file = file_management.get_nonexistant_file(
+        output_file = get_nonexistant_file(
             parent_dir+'/summary_report_'+protein_name+'_filtered.csv')
     else:
-        output_file_full = file_management.get_nonexistant_file(
+        output_file_full = get_nonexistant_file(
             output_directory+'/summary_report_'+protein_name+'_with_filter.csv')
-        output_file = file_management.get_nonexistant_file(
+        output_file = get_nonexistant_file(
             output_directory+'/summary_report_'+protein_name+'_filtered.csv')
     filtered.to_csv(output_file)
     summary_report.to_csv(output_file_full)

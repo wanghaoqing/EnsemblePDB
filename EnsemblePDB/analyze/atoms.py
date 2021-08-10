@@ -6,22 +6,24 @@ Authors:
     Rachael Kretsch(rkretsch@stanford.edu), 
     Siyuan Du (dusiyuan@stanford.edu),
     Jacob Parres-Gold
-    
-Last edited:
-    2021-08-10
 '''
+
 from pathlib import Path
 import pandas as pd
-import numpy as np
+import numpy as pd
 from tqdm import tqdm
 from functools import reduce
 from sklearn.utils import resample
-from EnsemblePDB.utils import biopandas_utils, file_management
+
+from EnsemblePDB.utils.file_management import get_nonexistant_file
+from EnsemblePDB.utils.biopandas_utils import get_PandasPDBs
 
 
-def get_MDev(directory, chains, reference_PDB, multiconformers=False, output_directory=None, bootstrap=True, iter=50):
+def get_MDev(directory, chains, reference_PDB, multiconformers=False,
+             output_directory=None, bootstrap=True, iter=50):
     '''
-    Takes aligned .pdb files and calculates the mean deviation of atom positions for all atoms.
+    Takes aligned .pdb files and calculates the mean deviation of atom 
+    positions for all atoms.
 
     Arguments:
         directory (str): Folder of aligned .pdb files
@@ -35,19 +37,21 @@ def get_MDev(directory, chains, reference_PDB, multiconformers=False, output_dir
         Dict, keys = chains (str), entries = DataFrames of MDev values for each atom.
     Saves MDev files to given output directory or default.
     '''
-    ppdbs = biopandas_utils.get_PandasPDBs(directory)
-    atoms = get_xyz(ppdbs)
+    ppdbs = get_PandasPDBs(directory)
+    atoms = _get_xyz(ppdbs)
     if not multiconformers:
-        atoms = clean_multiconformers(atoms)
+        atoms = _clean_multiconformers(atoms)
 
     if output_directory is None:
         output_directory = str(Path(directory).parents[0])
-    MDev = combine_save_MDev(atoms, chains, reference_PDB,
-                             output_directory, bootstrap, iter)
+    MDev = _combine_save_MDev(atoms, chains, reference_PDB,
+                              output_directory, bootstrap, iter)
     return MDev
 
 
-def get_distance_distributions(directory, chains, multiconformers=False, quantile=0.95, report_outliers=True, output_directory=None):
+def get_distance_distributions(directory, chains, multiconformers=False,
+                               quantile=0.95, report_outliers=True,
+                               output_directory=None):
     '''
     Get all coordinates for an atom in the ensemble and calculate the distance of each from the center atom of the ensemble and from the average position. Also determines whether a position is an outlier of the ensemble based on given quantile. 
     Argumentss:
@@ -60,10 +64,10 @@ def get_distance_distributions(directory, chains, multiconformers=False, quantil
         dict, key = chains, value = dataframe with new columns of distance from center atom and average position and outlier
     Saves atomic positions and their distances from center/average position as a csv. Saves outlier report if user chose to get it.
     '''
-    ppdbs = biopandas_utils.get_PandasPDBs(directory)
-    atoms = get_xyz(ppdbs)
+    ppdbs = get_PandasPDBs(directory)
+    atoms = _get_xyz(ppdbs)
     if not multiconformers:
-        atoms = clean_multiconformers(atoms)
+        atoms = _clean_multiconformers(atoms)
 
     if output_directory is None:
         output_directory = str(Path(directory).parents[0])
@@ -72,50 +76,59 @@ def get_distance_distributions(directory, chains, multiconformers=False, quantil
     for chain in chains:
         atoms = atoms.loc[atoms['chain_id'] == chain]
         atoms = atoms.set_index(
-            ['residue_number', 'insertion', 'residue_name', 'atom_name']).sort_index()
+            ['residue_number', 'insertion', 'residue_name',
+             'atom_name']).sort_index()
         to_concat = []
-        # print('Calculating distances and outliers in chain {} ...'.format(chain))
-        for i, index in tqdm(enumerate(atoms.index.unique()), total=len(atoms.index.unique()), desc=f'Calculating distances and outliers in chain {chain}'):
+
+        for i, index in tqdm(enumerate(atoms.index.unique()),
+                             total=len(atoms.index.unique()),
+                             desc=f'Calculating distances and' +
+                             'outliers in chain {chain}'):
             atom = atoms.loc[index, :].copy()
-            atom['xyz_spread'] = calculate_msd(
-                atom['x_coord']) + calculate_msd(atom['y_coord']) + calculate_msd(atom['z_coord'])
-            # atom.insert(loc = len(atom.columns), column = 'xyz_spread', value = xyz_spread)
-            # atoms[index, 'xyz_spread (msd)'] = xyz_spread
+            atom['xyz_spread'] = (_calculate_msd(atom['x_coord']) +
+                                  _calculate_msd(atom['y_coord']) +
+                                  _calculate_msd(atom['z_coord']))
+
             # find center atom
             center = atom.iloc[atom['xyz_spread'].argmin()]
             # find average position
             average = (atom['x_coord'].mean(),
                        atom['y_coord'].mean(), atom['z_coord'].mean())
 
-            atom['distance_from_center'] = atom.apply(lambda x: get_distance(
-                x['x_coord'], x['y_coord'], x['z_coord'], center['x_coord'], center['y_coord'], center['z_coord']), axis=1)
+            atom['distance_from_center'] = atom.apply(lambda x: _get_distance(
+                x['x_coord'], x['y_coord'], x['z_coord'], center['x_coord'],
+                center['y_coord'], center['z_coord']), axis=1)
             atom['outlier_from_center'] = atom['distance_from_center'].apply(
-                lambda x: True if x > atom['distance_from_center'].quantile(quantile) else False)
+                lambda x: x > atom['distance_from_center'].quantile(quantile))
 
-            atom['distance_from_average'] = atom.apply(lambda x: get_distance(
-                x['x_coord'], x['y_coord'], x['z_coord'], average[0], average[1], average[2]), axis=1)
+            atom['distance_from_average'] = atom.apply(lambda x: _get_distance(
+                x['x_coord'], x['y_coord'], x['z_coord'], average[0],
+                average[1], average[2]), axis=1)
             atom['outlier_from_average'] = atom['distance_from_average'].apply(
-                lambda x: True if x > atom['distance_from_average'].quantile(quantile) else False)
+                lambda x: x > atom['distance_from_average'].quantile(quantile))
             to_concat.append(atom)
         chain_out = pd.concat(to_concat)
-        fname = file_management.get_nonexistant_file(output_directory + f'/all_atom_positions_summary_chain_{chain}.csv')
+        fname = get_nonexistant_file(
+            output_directory + f'/all_atom_positions_summary_chain_{chain}.csv')
         chain_out.to_csv(fname)
         print(f'\nAtomic positions and distances saved to {fname}')
         final[chain] = chain_out
     if report_outliers:
-        number_of_outliers = get_outliers_report(final, output_directory)
+        number_of_outliers = _get_outliers_report(final, output_directory)
 
     return final
 
-####################### helper functions ##################################
+###############################################################################
+# Helper functions
+###############################################################################
 
 
-def get_xyz(PDB_df):
+def _get_xyz(PDB_df):
     '''
     Gets xyz coordinates for each atom in a set of PDB structures
     Assumes numberings are consistent.
     '''
-    # print('Getting atom coordinates...')
+
     coords_to_concat = []
 
     for index, row in tqdm(PDB_df.iterrows(), total=len(PDB_df), desc='Getting atom coordinates'):
@@ -130,21 +143,18 @@ def get_xyz(PDB_df):
     return all_coords
 
 
-def clean_multiconformers(atoms):
+def _clean_multiconformers(atoms):
     '''
     Deletes entries  with multi-conformations.
     '''
     atoms = atoms.reset_index()
-    # multi_conf = atoms.loc[atoms['occupancy'] != 1.0]
+
     single_atoms = atoms.loc[atoms['occupancy'] == 1.0]
-    # if not multi_conf.empty:
-    #     print('Cleaned {} multiconformer atom entries with occupancy < 1.0.'.format(len(multi_conf)))
-    # else:
-    #     print('All atoms are single conformers.')
+
     return single_atoms
 
 
-def calculate_msd(list_of_coords):
+def _calculate_msd(list_of_coords):
     '''
     Arguments:
         list/array-like object with x,y or z coordinates of one atom
@@ -166,27 +176,30 @@ def calculate_msd(list_of_coords):
     return np.array(msd_list)
 
 
-def calculate_rmsd(group):
+def _calculate_rmsd(group):
     '''
     Arguments:
         grouped atoms coordinates
+
     Returns:
         Dataframe of RMSD for each group
     '''
-    xyz_spread = calculate_msd(
-        group['x_coord']) + calculate_msd(group['y_coord']) + calculate_msd(group['z_coord'])
+    xyz_spread = _calculate_msd(
+        group['x_coord']) + _calculate_msd(group['y_coord']) + _calculate_msd(group['z_coord'])
     min_msd = xyz_spread.min()
     rmsd = np.sqrt(min_msd)
 
     return rmsd
 
 
-def bootstrap_analysis(group, iter):
+def _bootstrap_analysis(group, iter):
     '''
     Apply on a group object (one atom) to perform bootstrap analysis on MDev and returns a standard deviation from the bootstrap distribution
+    
     Arguments:
         group, a group in pandas groupby object
         iter, number of iterations to perform bootstrapping
+    
     Returns:
         standard deviation of the bootstrap distribution
     '''
@@ -194,12 +207,12 @@ def bootstrap_analysis(group, iter):
     for i in range(iter):
         sample = resample(group)
         # for each sample calculate MDev
-        MDev = calculate_rmsd(sample)
+        MDev = _calculate_rmsd(sample)
         MDevs.append(MDev)
     return np.std(MDevs)
 
 
-def calculate_MDev(df, bootstrap, iter):
+def _calculate_MDev(df, bootstrap, iter):
     '''
     Arguments:
         df, dataframe of atom coordinates
@@ -208,12 +221,12 @@ def calculate_MDev(df, bootstrap, iter):
     '''
     grouped = df.groupby(['residue_number', 'insertion',
                           'residue_name', 'atom_name'])
-    MDev = grouped.progress_apply(lambda x: calculate_rmsd(x))
+    MDev = grouped.progress_apply(lambda x: _calculate_rmsd(x))
     size = grouped['Entry ID'].count()
     to_concat = [MDev, size]
     if bootstrap:
         tqdm.pandas(desc=f'Perform bootstrap analysis')
-        boot = grouped.progress_apply(lambda x: bootstrap_analysis(x, iter))
+        boot = grouped.progress_apply(lambda x: _bootstrap_analysis(x, iter))
         to_concat.append(boot)
     MDevs = pd.concat(to_concat, axis=1)
     MDevs = pd.DataFrame(MDevs).reset_index()\
@@ -223,7 +236,7 @@ def calculate_MDev(df, bootstrap, iter):
     return MDevs
 
 
-def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter):
+def _combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter):
     '''
     Arguments:
         df, dataframe of atom coords
@@ -238,7 +251,7 @@ def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter):
         df_temp = df.loc[df['chain_id'] == chain]
         # print('Calculating MDev for chain {}...'.format(chain))
         tqdm.pandas(desc=f'Calculating atomic MDevs for chain {chain}')
-        MDev = calculate_MDev(df_temp, bootstrap, iter)
+        MDev = _calculate_MDev(df_temp, bootstrap, iter)
 
         # get rid of mutants
         reference = df_temp.loc[df_temp['Entry ID'] == reference_PDB.lower()]
@@ -246,7 +259,7 @@ def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter):
             ['residue_number', 'insertion', 'residue_name']).index
         MDev = MDev.set_index(['residue_number', 'insertion', 'residue_name'])
         MDev = MDev[MDev.index.isin(wt_ids)].reset_index()
-        fname = file_management.get_nonexistant_file(
+        fname = get_nonexistant_file(
             save_to + '/all_atom_MDev_chain_{}.csv'.format(chain))
         MDev.to_csv(fname)
         print(f'\nMDev output for chain {chain} saved to {fname}.')
@@ -255,11 +268,11 @@ def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter):
     return MDevs
 
 
-def get_distance(x, y, z, x0, y0, z0):
+def _get_distance(x, y, z, x0, y0, z0):
     return np.sqrt((x-x0)**2 + (y-y0)**2 + (z-z0)**2)
 
 
-def get_outliers_report(atoms, output_directory):
+def _get_outliers_report(atoms, output_directory):
     '''
     Counts number of outliers in each structure.
     Arguments:
@@ -283,7 +296,7 @@ def get_outliers_report(atoms, output_directory):
             left, right, how='outer', on='Entry ID'), to_join)
     else:
         final = to_join[0]
-    fname = file_management.get_nonexistant_file(
+    fname = get_nonexistant_file(
         output_directory + '/atom_number_of outliers_report.csv')
     final.to_csv(fname)
     print(f'Outliers report saved to {fname}.')

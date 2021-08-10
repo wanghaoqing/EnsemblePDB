@@ -6,9 +6,6 @@ Author:
     Rachael Kretsch (rkretsch@stanford.edu), 
     Siyuan Du, 
     Jacob Parres-Gold
-
-Last edited:
-    2021-08-10
 """
 
 from Bio import pairwise2

@@ -6,20 +6,20 @@ Authors:
     Rachael Kretsch (rkretsch@stanford.edu)
     Siyuan Du (dusiyuan@stanford.edu)
     Jacob Parres-Gold
-
-Last edited:
-    2020-08-10
 '''
 
-import os
-from os import path
+from os import path, listdir
 from pathlib import Path
+
 import pandas as pd
 import numpy as np
 from biopandas.pdb import PandasPdb
 from tqdm import tqdm
-from EnsemblePDB.utils import file_management, biopandas_utils, table_utils, sequence_alignment
 
+from EnsemblePDB.utils.sequence_alignment import specific_pairwise2_align
+from EnsemblePDB.utils.file_management import get_dir,get_nonexistant_file
+from EnsemblePDB.utils.biopandas_utils import get_chain_seq,retrieve_pdbs
+from EnsemblePDB.utils.table_utils import get_reference_chains,reformat_dict,get_table_entry_from_list,get_list_from_table_entry,get_nested_lists
 
 def download_and_renumber(summary_report_csv, reference_pdb=None,
                           reference_chains=None,
@@ -78,22 +78,22 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     fstem = str(Path(summary_report_csv).stem)
 
     # Get references listed in summary report. Note that this may be different from input reference_chains. E.g. If used query_by_sequence before, but now want to use a reference PDB and chain to renumber.
-    table_references = table_utils.get_reference_chains(data)
+    table_references = get_reference_chains(data)
 
     # Download all pdbs in a directory
     if downloaded_pdb_folder is None:
-        directory = file_management.get_dir(output_directory+'/Unaltered_pdbs')
-        biopandas_utils.retrieve_pdbs(data, Path(directory))
+        directory = get_dir(output_directory+'/Unaltered_pdbs')
+        retrieve_pdbs(data, Path(directory))
     else:
         directory = Path(downloaded_pdb_folder)
     # make a matching folder for renumbered pdb
-    renumbered_directory = file_management.get_dir(
+    renumbered_directory = get_dir(
         output_directory+'/Renumbered_unaligned_pdbs')
     # rename chains
     tqdm.pandas(desc="Renaming chains")
     # Remove pdbs not downloaded
     data = data.drop(data[data['Entry ID'].apply(lambda y: y.lower() not in [
-                     x[:4].lower() for x in os.listdir(directory)])].index, axis=0)
+                     x[:4].lower() for x in listdir(directory)])].index, axis=0)
 
     data['Renamed: old to new chain'] = data.progress_apply(lambda row: rename_chains(
         row, table_references, directory, renumbered_directory, combine_chains_by), axis=1)
@@ -120,14 +120,14 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     # clear format for csv saving
     data = data.drop('Renamed: old to new reidues', axis=1)
     data['Renamed: old to new chain'] = data['Renamed: old to new chain'].apply(
-        table_utils.reformat_dict)
+        reformat_dict)
     data['Renamed: mutations'] = data['Renamed: mutations'].apply(
-        table_utils.get_table_entry_from_list)
+        get_table_entry_from_list)
     for ref_chain in new_ref_chains:
-        data[f'Renamed: Align ref {ref_chain}: chains aligned'] = data[f'Renamed: Align ref {ref_chain}: chains aligned'].apply(table_utils.get_table_entry_from_list)
-        data[f'Renamed: Align ref {ref_chain}: ref seq alignment'] = data[f'Renamed: Align ref {ref_chain}: ref seq alignment'].apply(table_utils.get_table_entry_from_list)
-        data[f'Renamed: Align ref {ref_chain}: chains seq alignment'] = data[f'Renamed: Align ref {ref_chain}: chains seq alignment'].apply(table_utils.get_table_entry_from_list)
-    fname = file_management.get_nonexistant_file(
+        data[f'Renamed: Align ref {ref_chain}: chains aligned'] = data[f'Renamed: Align ref {ref_chain}: chains aligned'].apply(get_table_entry_from_list)
+        data[f'Renamed: Align ref {ref_chain}: ref seq alignment'] = data[f'Renamed: Align ref {ref_chain}: ref seq alignment'].apply(get_table_entry_from_list)
+        data[f'Renamed: Align ref {ref_chain}: chains seq alignment'] = data[f'Renamed: Align ref {ref_chain}: chains seq alignment'].apply(get_table_entry_from_list)
+    fname = get_nonexistant_file(
         output_directory+'/'+fstem+'_renumbered.csv')
     data.to_csv(fname)
     print('\n')
@@ -136,7 +136,9 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     print(f'Chains information saved to {fname}.')
     return data
 
-# helper functions
+###############################################################################
+# Helper functions
+###############################################################################
 
 
 def swap_chains(row, target):
@@ -167,7 +169,7 @@ def get_TER_old_to_new(chain_old_to_new):
     last_key = list(chain_old_to_new.keys())[0]
     last_chain = chain_old_to_new[last_key]
     for key, value in chain_old_to_new.items():
-        # print(key, value, last_key,last_chain,TER_old_to_new)
+
         if not last_chain:
             last_chain = value
         if last_chain != value:
@@ -229,12 +231,12 @@ def rename_chains(row, reference_chains, directory, new_directory, combine_chain
     l = 76  # ligand start from L
     no_combinations_suggested = False
     for ref_chain in reference_chains:
-        order_of_chains = table_utils.get_list_from_table_entry(row[f'Align ref {ref_chain}: order of chains'])
+        order_of_chains = get_list_from_table_entry(row[f'Align ref {ref_chain}: order of chains'])
         # first consider chains aligned to reference
         if combine_chains_by:
             to_combine_ = row[f'Check ref {ref_chain}: suggest combine chains to groups ({combine_chains_by})']
             if not pd.isnull(to_combine_) or to_combine_ in ['nan', 'Null', 'None', 'NaN']:
-                to_combine = table_utils.get_nested_lists(to_combine_)
+                to_combine = get_nested_lists(to_combine_)
                 for group in to_combine:
                     new_chain = chr(i)
                     i += 1
@@ -242,9 +244,9 @@ def rename_chains(row, reference_chains, directory, new_directory, combine_chain
                         chain_old_to_new[chain] = new_chain
             else:
                 no_combinations_suggested = True
-        # TODO: test with other proteases
+
         if (not combine_chains_by) or no_combinations_suggested:
-            aligned_to_rename = [x for x in table_utils.get_list_from_table_entry(row[f'Align ref {ref_chain}: chains aligned']) if x != 'nan']
+            aligned_to_rename = [x for x in get_list_from_table_entry(row[f'Align ref {ref_chain}: chains aligned']) if x != 'nan']
             aligned_order = [order_of_chains.index(
                 c) for c in aligned_to_rename]
             sorted_aligned = [x for _, x in sorted(zip(
@@ -254,9 +256,9 @@ def rename_chains(row, reference_chains, directory, new_directory, combine_chain
                 i += 1
                 chain_old_to_new[aligned_chain] = new_protein_chain
 
-        non_aligned = [x for x in table_utils.get_list_from_table_entry(
+        non_aligned = [x for x in get_list_from_table_entry(
             row['Align: Non-aligned chains']) if x not in chain_old_to_new.keys() and x != 'nan' and x in order_of_chains]
-        other_nonaligned = [x for x in table_utils.get_list_from_table_entry(
+        other_nonaligned = [x for x in get_list_from_table_entry(
             row['Align: Non-aligned chains']) if x not in chain_old_to_new.keys() and (x not in order_of_chains or x == 'nan')]
         # these weirdly labeled nonaligned chains will be added at the end.
         non_aligned_order = [order_of_chains.index(
@@ -297,7 +299,7 @@ def get_new_aligned_chains(data, reference_pdb, new_ref_chains, table_references
         ref_struct = PandasPdb().read_pdb(ref_file)
         # get the new reference_chains
         for ref_chain in new_ref_chains:
-            reference_seqs.append(biopandas_utils.get_chain_seq(
+            reference_seqs.append(get_chain_seq(
                 ref_struct, chain=ref_chain, remove_his_tag=False))
 
     for i, ref_seq in enumerate(reference_seqs):
@@ -311,11 +313,11 @@ def get_new_aligned_chains(data, reference_pdb, new_ref_chains, table_references
             pdb_file = path.join(renumbered_directory, f"{row['Entry ID'].lower()}.pdb")
             pdb_struct = PandasPdb().read_pdb(pdb_file)
             for chain in pdb_struct.df['ATOM']['chain_id'].unique():
-                seq = biopandas_utils.get_chain_seq(
+                seq = get_chain_seq(
                     pdb_struct, chain=chain, remove_his_tag=False)
-                alignment = sequence_alignment.specific_pairwise2_align(ref_seq, seq, {
+                alignment = specific_pairwise2_align(ref_seq, seq, {
                                                                         'alignment_type': "global", 'gap_open_score': -0.5, 'gap_extend_score': -0.1})[0]
-                max_previous_score = max([float(x) for x in table_utils.get_list_from_table_entry(row[f'Align ref {table_references[i]}: pairwise align score']) if x != ''])
+                max_previous_score = max([float(x) for x in get_list_from_table_entry(row[f'Align ref {table_references[i]}: pairwise align score']) if x != ''])
                 # heuristics, if similar to previous alignment score then should be aligned. arbitrary allowance given 10% of sequence length
                 if alignment.score >= (max_previous_score-0.1*len(seq)):
                     chains_aligned.append(chain)
@@ -342,7 +344,7 @@ def get_reference_positions(renumbered_directory, reference_chains, reference_pd
         for ref_seq in sequences:
             ref_positions = {}
             for pos, residue in enumerate(ref_seq):
-                # residue = AMINO_ACIDS_1to3[residue]
+
                 ref_positions[pos] = (pos+1, '', residue)
         all_ref_positions.append(ref_positions)
 
@@ -437,7 +439,7 @@ def renumber_residues(row, reference_chains, renumbered_directory, all_ref_posit
                             mutations.append(
                                 refID[2]+str(refID[0])+refID[1].lower()+seqID[2])
                 positions_map[(chain,)+seqID] = (chain,)+seqIDtoset
-    # for sele in ['ATOM','ANISOU']:
+
     pdb_struct.df['ATOM']['ID'] = pdb_struct.df['ATOM'].apply(lambda x: (
         x['chain_id'], x['residue_number'], x['insertion'], x['residue_name']), axis=1)
     pdb_struct.df['ATOM']['ID'] = pdb_struct.df['ATOM']['ID'].map(

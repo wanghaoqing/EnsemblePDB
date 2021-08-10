@@ -7,9 +7,6 @@ Author:
     Rachael Kretsch (rkretsch@stanford.edu), 
     Siyuan Du, 
     Jacob Parres-Gold
-
-Last edited:
-    2020-08-10
 """
 
 import re
@@ -33,41 +30,6 @@ def get_table_entry_from_list(l):
         the string representation of l
     '''
     return " ~ ".join([str(a) for a in l])
-
-
-def get_first_float(s):
-    ''' from a table entry return the first value as an int
-    Arguments:
-        s (srt): the table entry
-    Returns:
-        the first element in s as a int
-    '''
-    l = get_list_from_table_entry(s)
-    return float(l[0].strip())
-
-
-def get_largest_float(s):
-    ''' from a table entry return the largest value as an float
-    Arguments:
-        s (srt): the table entry
-    Returns:
-        the largest value as a float
-    '''
-    l = get_list_from_table_entry(s)
-    l = [float(i) for i in l]
-    return max(l)
-
-
-def get_smallest_float(s):
-    ''' from a table entry return the smallest value as an float
-    Arguments:
-        s (srt): the table entry
-    Returns:
-        the smallest value as a float
-    '''
-    l = get_list_from_table_entry(s)
-    l = [float(i) for i in l]
-    return min(l)
 
 
 def delete_all_one_value(s):
@@ -134,21 +96,6 @@ def get_reference_chains(df):
     for col in filter(r.match, cols):
         ref_chains.append(col.split(":")[0][10:])
     return ref_chains
-
-
-def reformat_nested_lists(l_of_l):
-    '''
-    Apply on nested lists to get csv friendly format (str separated by + and ~)
-
-    Arguments:
-        l_of_l (list of lists of str)
-    Returns:
-        str
-    '''
-    l_of_c = []
-    for l in l_of_l:
-        l_of_c.append(' + '.join(l))
-    return ' ~ '.join(l_of_c)
 
 
 def get_nested_lists(table_entry):

@@ -1,17 +1,14 @@
 """ psuedo_ensemble.utils.file_management
 
-Help finding were to save output files and prevent overwriting files
+Help finding were to save output files and prevent overwriting files.
 
 Author:
     Rachael Kretsch (rkretsch@stanford.edu), 
     Siyuan Du, 
     Jacob Parres-Gold
-
-Last edited:
-    2020-08-10
 """
 
-from os import mkdir, system
+from os import mkdir
 from pathlib import Path
 
 

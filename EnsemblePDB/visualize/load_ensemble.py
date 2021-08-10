@@ -1,48 +1,12 @@
 ''' pseudo_ensemble.visualize.load_ensemble
-Insert explanation
-Author:
-    Rachael Kretsch (rkretsch@stanford.edu), Siyuan Du, Jacob Parres-Gold
-Last edited:
-    2020-01-22
-Last reviewed:
-TODO:
-    in subset think about homodimer etc.
-    save some file that has the old and new chian include split and combine changes
-    # file with
-    # pdb_old_chain , pdb_new_chain
-    # pdb_old_chain , pdb_new_chain
-    # etc.
-    add input for directory to save output folders
-    For sequence renumber right now its sequential allow to specify??
-# TODO is this resistant to the order alignments are put in?
-# temp solution naive align first
-# TODO can also swap around who is reference structure!
-# TODO test if ever has secondary structure visualizing issues after renumbering
-# psico.editing.dssp('all') or use Stride
-# not editing the sec structure (helix sheet) info as it is in the txt of
-# the biopandas object, unclear how pymol maps secondary structure if the pdb
-# text is followed first?
-# VISUALS
-# https://github.com/msabrowser/msabrowser/tree/master/examples
-# https://github.com/sanderlab/alignmentviewer
-# https://github.com/orangeSi/pymsaploter
-# MSA
-# https://github.com/benhid/Sequoya
-# http://qiime.org/1.8.0/scripts/align_seqs.html
-# TODO consider how deals with non-conventional AAs, gaps, and multiconformers
-# non-conventional labeled as ? in Biopandas pdb and thus not renumbered
-# Gaps
-# in renumbering on relabel what is present in the pdb atom definitions only
-# multiconformers:
-# they are labeled in the alt_loc column and should be preserved here
-# hetatoms
-# in seq alignment just labeled as - ... in .df["HETATOM"]
-# can maybe renumber based on what they are near?
-# or if not match add anyway after merge hetatom and atom?
-# also don't deal with anisou or ter
-'''
 
-#TODO: split chains
+TODO
+
+Authors:
+    Rachael Kretsch (rkretsch@stanford.edu), 
+    Siyuan Du, 
+    Jacob Parres-Gold
+'''
 
 from pymol import cmd
 from os import path
@@ -81,13 +45,13 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, split_chains=F
     assert (files != []), "No pdbs in " + directory
 
 
-    # print(files)
+
     if reference_pdb is not None:
         reference_pdb = reference_pdb[:4].lower()+reference_pdb[4:]
         ref_file = Path(directory) / f"{reference_pdb}.pdb"
         assert (path.isfile(ref_file)), f"{ref_file} is not a file."
         cmd.load(ref_file)
-        # print(ref_file)
+
         if split_chains:
             cmd.split_chains(reference_pdb)
             cmd.group(reference_pdb + "_", " ".join(
@@ -95,14 +59,14 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, split_chains=F
         files.remove(ref_file)
     for file in files:
         cmd.load(file)
-        pdb = file.stem  # split("/")[-1][:-4]
+        pdb = file.stem  
         if split_chains:
             cmd.split_chains(pdb)
             cmd.group(
                 pdb + "_", " ".join([name for name in cmd.get_names() if name[:4] == pdb]))
 
     if groups is not None:
-        #JANK
+
         pdbs = [file.stem for file in files]
         groups = pd.read_csv(groups)
         group_pdbs = groups["Entry ID"].str.lower().tolist()

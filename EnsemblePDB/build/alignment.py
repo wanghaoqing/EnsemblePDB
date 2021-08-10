@@ -6,14 +6,8 @@ Authors:
     Rachael Kretsch (rkretsch@stanford.edu), 
     Siyuan Du, 
     Jacob Parres-Gold
-
-Last edited:
-    2020-08-10
 '''
 
-from EnsemblePDB.visualize import load_ensemble
-from EnsemblePDB.utils import file_management
-from os import path
 from shutil import copyfile
 import glob
 from pathlib import Path
@@ -21,6 +15,10 @@ from tqdm import tqdm
 from pymol import cmd
 import pandas as pd
 import warnings
+
+from EnsemblePDB.visualize.load_ensemble import load_ensemble
+from EnsemblePDB.utils.file_management import get_dir,get_nonexistant_file
+
 warnings.filterwarnings("ignore", category=DeprecationWarning, module='pymol')
 
 
@@ -57,7 +55,7 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None, refe
 
     # load structure
     if not loaded:
-        load_ensemble.load_ensemble(directory)
+        load_ensemble(directory)
         if reference_pdb_file is not None:
             cmd.load(reference_pdb_file)
 
@@ -86,9 +84,9 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None, refe
             '.', '_').replace('+', '_').replace(' ', '_')
     if not output_directory:
         parent_directory = str(Path(directory).parents[0])
-        output_directory = file_management.get_dir(
+        output_directory = get_dir(
             parent_directory + '/Alignment_on_' + alignment_named + '_ref_' + reference_pdb)
-    output_pdbs_directory = file_management.get_dir(str(
+    output_pdbs_directory = get_dir(str(
         output_directory)+'/Renumbered_aligned_pdbs_'+alignment_named + '_ref_' + reference_pdb)
 
     # make sure to save reference pdb to new folder
@@ -157,8 +155,8 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None, refe
         loc=0, column="Entry ID", value=EntryIDs)
 
     # save all alignment and rmsd information
-    all_atom_output_file = file_management.get_nonexistant_file(Path(output_directory, f'all_atom_rmsds_before_alignment.csv'))
-    alignment_output_file = file_management.get_nonexistant_file(Path(output_directory, f'alignment_{alignment_named}.csv'))
+    all_atom_output_file = get_nonexistant_file(Path(output_directory, f'all_atom_rmsds_before_alignment.csv'))
+    alignment_output_file = get_nonexistant_file(Path(output_directory, f'alignment_{alignment_named}.csv'))
 
     # print("\nSaving alignment for alignment " + alignment + " in ", str(alignment_output_file))
     # print("Saving rmsd information in ", str(all_atom_output_file))
@@ -196,7 +194,7 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
     all alignments.
     '''
     if not loaded:
-        load_ensemble.load_ensemble(directory)
+        load_ensemble(directory)
     # Get list of the structures
     structures_list = cmd.get_object_list()
     if reference_pdb is None:
@@ -207,13 +205,13 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
 
     if not output_directory:
         parent_directory = str(Path(directory).parents[0])
-        all_output_directory = file_management.get_dir(
+        all_output_directory = get_dir(
             parent_directory + '/Alignments')
     else:
         all_output_directory = output_directory
     # Do a naive alignment
     if naive:
-        alignment_directory = file_management.get_dir(
+        alignment_directory = get_dir(
             str(all_output_directory)+'/Naive_alignment')
         alignment_output, rmsd_output = align_all_pymol(directory, "", loaded=True, reference_pdb=reference_pdb, cutoff=cutoff, cycles=cycles, gap=gap,
                                                         max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix, align_method=align_method, name="Naive", output_directory=str(alignment_directory))
@@ -232,7 +230,7 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
         # print(alignment)
         alignment_named = alignment.replace(
             '.', '_').replace('+', '_').replace(' ', '_')
-        alignment_directory = file_management.get_dir(
+        alignment_directory = get_dir(
             str(all_output_directory)+'/Alignment_on_' + alignment_named)
         alignment_output, rmsd_output = align_all_pymol(directory=directory, alignment=alignment, loaded=True, reference_pdb=reference_pdb, cutoff=cutoff, cycles=cycles,
                                                         gap=gap, max_gap=max_gap, extend=extend, max_skip=max_skip, matrix=matrix, align_method=align_method, output_directory=str(alignment_directory))
@@ -242,7 +240,7 @@ def multiple_alignments(directory, alignments=[""], loaded=False, reference_pdb=
         rmsd_stats = pd.concat([rmsd_stats, align_rmsd_sum], ignore_index=True)
 
     # save summary stats
-    stats_output_file = file_management.get_nonexistant_file(str(all_output_directory) +
+    stats_output_file = get_nonexistant_file(str(all_output_directory) +
                                                              '/alignments_summary.csv')
     print("\nSummary stats saved in", str(stats_output_file))
     rmsd_stats.to_csv(stats_output_file, index=False)
