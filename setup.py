@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 # This setup is suitable for "python setup.py develop".
@@ -11,7 +11,7 @@ setup(name='EnsemblePDB',
       author='Herschlag-Lab',
       author_email='rkretsch@stanford.edu',
       url='http://www.herschlaglab.sqaurespace.com',
-      packages=['EnsemblePDB'],
+      packages=find_packages(),
       install_requires=['biopython','biopandas','progressbar','mdanalysis','pymol'] #rdkit
       )
 

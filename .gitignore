@@ -1,2 +1,4 @@
 __pycache__
 EnsemblePDB.egg-info/
+build/
+dist/
