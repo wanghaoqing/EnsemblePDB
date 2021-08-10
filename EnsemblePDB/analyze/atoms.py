@@ -60,14 +60,20 @@ def get_distance_distributions(directory, chains, multiconformers=False,
     Arguments:
         directory (str): folder of all aligned PDB file.
         chains (list): list of selected chain to get atoms 
-        quantile (float): the quantile of data used to identify outliers {default: 0.95} 
-        report_outliers (bool): if True, calculates the number of outliers in each PDB structure and saves a separate file.
-        output_directory (str): Directory to save output files to. If None, saves to the parent of given directory {default: None}
+        quantile (float): the quantile of data used to identify outliers 
+                            {default: 0.95} 
+        report_outliers (bool): if True, calculates the number of outliers in 
+                            each PDB structure and saves a separate file.
+        output_directory (str): Directory to save output files to. If None, 
+                        saves to the parent of given directory {default: None}
     
     Returns:
-        dict, key = chains, value = dataframe with new columns of distance from center atom and average position and outlier
+        dataframe with new columns of distance from center atom and average position 
+        and outlier
     
-    Saves atomic positions and their distances from center/average position as a csv. Saves outlier report if user chose to get it.
+    Output:
+        Saves atomic positions and their distances from center/average position
+        as a csv. Saves outlier report if user chose to get it.
     '''
     ppdbs = get_PandasPDBs(directory)
     atoms = _get_xyz(ppdbs)

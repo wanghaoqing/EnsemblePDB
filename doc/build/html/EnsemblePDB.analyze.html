@@ -223,16 +223,24 @@ positions for all atoms.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>directory</strong> (<em>str</em>) – folder of all aligned PDB file.</p></li>
 <li><p><strong>chains</strong> (<em>list</em>) – list of selected chain to get atoms</p></li>
-<li><p><strong>quantile</strong> (<em>float</em>) – the quantile of data used to identify outliers {default: 0.95}</p></li>
-<li><p><strong>report_outliers</strong> (<em>bool</em>) – if True, calculates the number of outliers in each PDB structure and saves a separate file.</p></li>
-<li><p><strong>output_directory</strong> (<em>str</em>) – Directory to save output files to. If None, saves to the parent of given directory {default: None}</p></li>
+<li><p><strong>quantile</strong> (<em>float</em>) – the quantile of data used to identify outliers
+{default: 0.95}</p></li>
+<li><p><strong>report_outliers</strong> (<em>bool</em>) – if True, calculates the number of outliers in
+each PDB structure and saves a separate file.</p></li>
+<li><p><strong>output_directory</strong> (<em>str</em>) – Directory to save output files to. If None,
+saves to the parent of given directory {default: None}</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>dict, key = chains, value = dataframe with new columns of distance from center atom and average position and outlier</p>
+<dd class="field-even"><p>dataframe with new columns of distance from center atom and average position
+and outlier</p>
 </dd>
 </dl>
-<p>Saves atomic positions and their distances from center/average position as a csv. Saves outlier report if user chose to get it.</p>
+<dl class="simple">
+<dt>Output:</dt><dd><p>Saves atomic positions and their distances from center/average position
+as a csv. Saves outlier report if user chose to get it.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
