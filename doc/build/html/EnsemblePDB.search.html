@@ -191,125 +191,18 @@
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2021-08-10</p>
-</dd>
 </dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.combine_dict_info">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">combine_dict_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_collapsed_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.combine_dict_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given 2 dictionaries and a list of keys not to change
-creates a new dictionary with combined values
-:param new_collapsed_dict: dictionary to add to
-:type new_collapsed_dict: dict
-:param temp: dictionary to add from
-:type temp: dict
-:param old_info: list of keys not to change
-:type old_info: list of str</p>
-<dl class="simple">
-<dt>Output:</dt><dd><p>new_collapsed_dict with the information from temp added</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.fetch_pdb_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">fetch_pdb_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.fetch_pdb_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch data from a url
-:param url: base url to fetch from
-:type url: str
-:param pdb: the extension to url to fetch from
-:type pdb: str
-:param alt_url: if fail to fetch from original url try to alt urls
-:type alt_url: list str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the json information formatted as a dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_assembly_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_assembly_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assembly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_assembly_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch PDB data regarding the pdb assembly
-:param pdb: pbd id “XXXX”
-:type pdb: str
-:param assembly: assembly number
-:type assembly: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_chemcomp_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_chemcomp_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_chemcomp_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch PDB data regarding a chemical
-:param comp_id: unique id of that chemical
-:type comp_id: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_drugbank_chemcomp_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_drugbank_chemcomp_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_drugbank_chemcomp_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch drugbank data regarding a chemical
-:param comp_id: unique id of that chemical
-:type comp_id: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_pdb_data">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_pdb_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'citation.pdbx_database_id_doi':</span> <span class="pre">'citation:</span> <span class="pre">doi',</span> <span class="pre">'citation.title':</span> <span class="pre">'citation:</span> <span class="pre">title',</span> <span class="pre">'citation.year':</span> <span class="pre">'citation:</span> <span class="pre">year',</span> <span class="pre">'diffrn.ambient_temp':</span> <span class="pre">'expt:</span> <span class="pre">diffrn</span> <span class="pre">temp',</span> <span class="pre">'entity_poly.rcsb_mutation_count':</span> <span class="pre">'entity-polymer:</span> <span class="pre">mutation_count',</span> <span class="pre">'exptl_crystal_grow.method':</span> <span class="pre">'expt:</span> <span class="pre">crystal</span> <span class="pre">grow</span> <span class="pre">method',</span> <span class="pre">'exptl_crystal_grow.ph':</span> <span class="pre">'expt:</span> <span class="pre">crystal</span> <span class="pre">grow</span> <span class="pre">pH',</span> <span class="pre">'pdbx_entity_nonpoly.comp_id':</span> <span class="pre">'pdbx-entity-nonpolymer:</span> <span class="pre">chem</span> <span class="pre">component</span> <span class="pre">id',</span> <span class="pre">'pdbx_entity_nonpoly.entity_id':</span> <span class="pre">'pdbx-entity-nonpolymer:</span> <span class="pre">entity</span> <span class="pre">id',</span> <span class="pre">'pdbx_entity_nonpoly.name':</span> <span class="pre">'pdbx-entity-nonpolymer:</span> <span class="pre">name',</span> <span class="pre">'pdbx_vrpt_summary.clashscore':</span> <span class="pre">'pdbx:</span> <span class="pre">clashscore',</span> <span class="pre">'pdbx_vrpt_summary.pdbr':</span> <span class="pre">'pdbx:</span> <span class="pre">Rfactor',</span> <span class="pre">'pdbx_vrpt_summary.pdbresolution':</span> <span class="pre">'pdbx:</span> <span class="pre">resolution',</span> <span class="pre">'pdbx_vrpt_summary.pdbrfree':</span> <span class="pre">'pdbx:</span> <span class="pre">Rfree',</span> <span class="pre">'rcsb_entity_source_organism.scientific_name':</span> <span class="pre">'pdbx-entity:</span> <span class="pre">organism</span> <span class="pre">scientific</span> <span class="pre">name',</span> <span class="pre">'rcsb_entry_container_identifiers.entity_ids':</span> <span class="pre">'rscb-entry:</span> <span class="pre">entity</span> <span class="pre">ids',</span> <span class="pre">'rcsb_entry_info.molecular_weight':</span> <span class="pre">'rcsb-entry:</span> <span class="pre">molecular</span> <span class="pre">weight',</span> <span class="pre">'rcsb_entry_info.nonpolymer_entity_count':</span> <span class="pre">'rcsb-entry:</span> <span class="pre">nonpolymer</span> <span class="pre">entity</span> <span class="pre">count',</span> <span class="pre">'rcsb_entry_info.polymer_entity_count':</span> <span class="pre">'rcsb-entry:</span> <span class="pre">polymer</span> <span class="pre">entity</span> <span class="pre">count',</span> <span class="pre">'rcsb_entry_info.polymer_entity_count_protein':</span> <span class="pre">'rcsb-entry:</span> <span class="pre">polymer</span> <span class="pre">entity</span> <span class="pre">protein</span> <span class="pre">count',</span> <span class="pre">'rcsb_entry_info.polymer_molecular_weight_maximum':</span> <span class="pre">'rcsb-entry:</span> <span class="pre">polymer</span> <span class="pre">molecular</span> <span class="pre">weight</span> <span class="pre">max',</span> <span class="pre">'rcsb_entry_info.polymer_molecular_weight_minimum':</span> <span class="pre">'rcsb-entry:</span> <span class="pre">polymer</span> <span class="pre">molecular</span> <span class="pre">weight</span> <span class="pre">min',</span> <span class="pre">'rcsb_nonpolymer_entity.formula_weight':</span> <span class="pre">'rcsb-nonpolymer-entity:</span> <span class="pre">formula</span> <span class="pre">weight',</span> <span class="pre">'rcsb_polymer_entity.pdbx_description':</span> <span class="pre">'rscb-polymer-entity:</span> <span class="pre">description',</span> <span class="pre">'rcsb_polymer_entity.pdbx_ec':</span> <span class="pre">'rscb-polymer-entity:</span> <span class="pre">EC</span> <span class="pre">number',</span> <span class="pre">'rcsb_polymer_entity.pdbx_mutation':</span> <span class="pre">'rscb-polymer-entity:</span> <span class="pre">mutation',</span> <span class="pre">'refine.biso_mean':</span> <span class="pre">'refine_bfactor_mean'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MyProtein'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['entry',</span> <span class="pre">'entity',</span> <span class="pre">'chem']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_pdb_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a csv with PDB IDs in the ‘Entry ID’ column, downloads
-and merges summary reports for those PDB ids from the PDB.
-:param ensemble_csv: location of csv file with the PDB IDs
-:type ensemble_csv: str
-:param desired_cols: keys are the name of the PDB information, values are</p>
-<blockquote>
-<div><p>what you would like this column to be names</p>
-</div></blockquote>
+and merges summary reports for those PDB ids from the PDB.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>ensemble_csv</strong> (<em>str</em>) – location of csv file with the PDB IDs</p></li>
+<li><p><strong>desired_cols</strong> (<em>dict</em>) – keys are the name of the PDB information, values are
+what you would like this column to be names</p></li>
 <li><p><strong>label</strong> (<em>str</em>) – Label to add to output file name</p></li>
 <li><p><strong>info_list</strong> (<em>list of str</em>) – list of what type of attributes you want
 note “entry” must be one of them</p></li>
@@ -327,186 +220,35 @@ the saved dataframe (summary_report*.csv)</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_pdb_entity_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_pdb_entity_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_pdb_entity_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch PDB data regarding the pdb entity
-:param pdb: pbd id “XXXX”
-:type pdb: str
-:param entity: entity number
-:type entity: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_pdb_entry_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_pdb_entry_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_pdb_entry_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch PDB data regarding the pdb entry
-:param pdb: pbd id “XXXX”
-:type pdb: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_pdb_instance_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_pdb_instance_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_pdb_instance_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch PDB data regarding the pdb instance (aka chain)
-:param pdb: pbd id “XXXX”
-:type pdb: str
-:param chain: instance (note not author labled chain but PDB labeled)
-:type chain: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_pubmed_entry_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_pubmed_entry_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_pubmed_entry_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch pubmed data regarding the pdb entry
-:param pdb: pbd id “XXXX”
-:type pdb: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.get_uniprot_entity_data">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">get_uniprot_entity_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.get_uniprot_entity_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>fetch uniprot data regarding the pdb entity
-:param pdb: pbd id “XXXX”
-:type pdb: str
-:param entity: entity number
-:type entity: str
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>dict flatten with only information in desired_cols</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.get_data.parse_dict_info">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_data.</span></span><span class="sig-name descname"><span class="pre">parse_dict_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols_to_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collapsed_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_data.parse_dict_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given the raw output of a fetch from pdb recurssively flattens the
-the dictionary and making any multiple instances into a list string sep: (” ~ “)
-:param info: raw output of pypdb.get_info
-:type info: dict
-:param desired_cols: columns desired as keys
-:type desired_cols: dict
-:param prefic: only used recursively inside function
-:type prefic: str
-:param collapsed_dict: only used recursively inside function
-:type collapsed_dict: dict
-:param cols_to_group: Used if there are columns expected to have more than one entry, such as sequence annotations, where each</p>
-<blockquote>
-<div><p>site is expected to have a set of data: “type”, “description,” etc. These data will need to be paired per site, potentially
-inserting “None” (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column
-names that will be included in that group.
-Example: cols_to_group = [[‘rcsb_uniprot_feature.type’,’rcsb_uniprot_feature.description’], …]</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>check_group</strong> (<em>None</em><em> or </em><em>list of bool</em>) – Variable used recursively inside function</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>Output:</dt><dd><p>collapsed dictionary with all same information</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 <div class="section" id="module-EnsemblePDB.search.get_structures">
 <span id="ensemblepdb-search-get-structures-module"></span><h2>EnsemblePDB.search.get_structures module<a class="headerlink" href="#module-EnsemblePDB.search.get_structures" title="Permalink to this headline">¶</a></h2>
-<p>pseudo_ensemble.search.get_structure
-TODO</p>
+<p>pseudo_ensemble.search.get_structure</p>
+<p>TODO</p>
 <dl class="simple">
 <dt>Authors:</dt><dd><p>Rachael Kretsch (<a class="reference external" href="mailto:rkretsch&#37;&#52;&#48;stanford&#46;edu">rkretsch<span>&#64;</span>stanford<span>&#46;</span>edu</a>),
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2020-08-10</p>
-</dd>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.search.get_structures.download_pdbs">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.get_structures.</span></span><span class="sig-name descname"><span class="pre">download_pdbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.get_structures.download_pdbs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a csv files from a pdb search, downlaod all pdbs.
-:param ensemble_csv: csv file resulting from a pdb search should</p>
-<blockquote>
-<div><dl class="simple">
-<dt>contain the following columns</dt><dd><ul class="simple">
-<li><p>Entry ID: pdb ids</p></li>
-</ul>
-</dd>
-</dl>
-</div></blockquote>
+<dd><p>Given a csv files from a pdb search, downlaod all pdbs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>ensemble_csv</strong> (<em>str</em>) – <p>csv file resulting from a pdb search should
+contain the following columns</p>
+<blockquote>
+<div><ul>
+<li><p>Entry ID: pdb ids</p></li>
+</ul>
+</div></blockquote>
+</p></li>
 <li><p><strong>output_folder</strong> (<em>str</em>) – if specified will save pdbs in that folder,
 otherwise will save in unaltered_pdbs in current folder {default: None},
-note will overwrite everythin in the folder specified if it exists</p></li>
-<li><p><strong>want?</strong> (<em>TODO is this overwrite behavior we</em>) – </p></li>
+note will overwrite everything in the folder specified if it exists</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -529,50 +271,20 @@ note will overwrite everythin in the folder specified if it exists</p></li>
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2021-08-10</p>
-</dd>
 </dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.query_pdb.get_all_chain_alignments">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.query_pdb.</span></span><span class="sig-name descname"><span class="pre">get_all_chain_alignments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_output_fasta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairwise_align_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.query_pdb.get_all_chain_alignments" title="Permalink to this definition">¶</a></dt>
-<dd><p>given a pdb id and a reference sequence, returns the alignment
-of every chain of that pdb with the reference sequence
-- chain names
-- formatted alignments output
-- alignments of the reference sequence
-- alignments of the sequences
-- number of AA matches to the refrence chain</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.query_pdb.get_all_chain_alignments_for_table">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.query_pdb.</span></span><span class="sig-name descname"><span class="pre">get_all_chain_alignments_for_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_output_fasta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairwise_align_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.query_pdb.get_all_chain_alignments_for_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a table with pdbs, adds columns indicating how each chain of each
-pdb aligns to the given reference sequence.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.query_pdb.get_all_chain_alignments_for_table_multi">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.query_pdb.</span></span><span class="sig-name descname"><span class="pre">get_all_chain_alignments_for_table_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_seqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairwise_align_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.query_pdb.get_all_chain_alignments_for_table_multi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets alignments for all matching chains of all pdbs in table, given a list
-of reference_seqs and their corresponding reference chains.
-Chains that do not align to any chain listed in Non_aligned_chains</p>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.search.query_pdb.query_by_ref_pdb">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.query_pdb.</span></span><span class="sig-name descname"><span class="pre">query_by_ref_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference_pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_chains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MyProtein'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macromolecule_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xray_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairwise_align_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'alignment_type':</span> <span class="pre">'local',</span> <span class="pre">'gap_extend_score':</span> <span class="pre">-</span> <span class="pre">0.1,</span> <span class="pre">'gap_open_score':</span> <span class="pre">-</span> <span class="pre">0.5}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.query_pdb.query_by_ref_pdb" title="Permalink to this definition">¶</a></dt>
 <dd><p>Will take sequence(s) or reference pdb chain(s) and will search
-the PDB for structures of similar sequences.
-:param reference_pdb: pdb id (‘XXXX’) to be the reference.
-:type reference_pdb: str
-:param reference_chains: list of the chains of the reference</p>
-<blockquote>
-<div><p>structure to use to seqeunce search.</p>
-</div></blockquote>
+the PDB for structures of similar sequences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>label</strong> – Label to add to end of file names</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference_pdb</strong> (<em>str</em>) – pdb id (‘XXXX’) to be the reference.</p></li>
+<li><p><strong>reference_chains</strong> (<em>list of str</em>) – list of the chains of the reference
+structure to use to seqeunce search.</p></li>
+<li><p><strong>label</strong> – Label to add to end of file names</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
@@ -648,32 +360,6 @@ sequence_search_summary*.txt and sequence_search_summary*.fasta</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>Pandas dataframe</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.search.query_pdb.search_seq">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.search.query_pdb.</span></span><span class="sig-name descname"><span class="pre">search_seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evalue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.search.query_pdb.search_seq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes in a sequence and a threshold for sequence identity and return a
-table with sequences that reach the threshold with their pdb_id, chaiin
-that matches, and alignment information.
-:param sequence: the sequence to search for
-:type sequence: str
-:param seq_id_min: the threshold sequence idenity to include
-:type seq_id_min: float
-:param chain_name: name of reference chain, used only for labeling
-:type chain_name: str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>with the pdb id, alignment information including</dt><dd><p>sequence and the chain(s) that matches</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Pandas Dataframe</p>
 </dd>
 </dl>
 </dd></dl>

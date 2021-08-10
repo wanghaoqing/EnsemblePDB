@@ -1,30 +1,29 @@
-EnsemblePDB\.build package
-==========================
+EnsemblePDB.build package
+=========================
 
 Submodules
 ----------
 
-EnsemblePDB\.build\.alignment module
-------------------------------------
+EnsemblePDB.build.alignment module
+----------------------------------
 
 .. automodule:: EnsemblePDB.build.alignment
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-EnsemblePDB\.build\.renumber module
------------------------------------
+EnsemblePDB.build.renumber module
+---------------------------------
 
 .. automodule:: EnsemblePDB.build.renumber
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: EnsemblePDB.build
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

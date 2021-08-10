@@ -96,6 +96,7 @@ def get_pdb_data(ensemble_csv, desired_cols=minimum_info, label='MyProtein', inf
     '''
     Given a csv with PDB IDs in the 'Entry ID' column, downloads
     and merges summary reports for those PDB ids from the PDB.
+    
     Arguments: 
         ensemble_csv (str): location of csv file with the PDB IDs
         desired_cols (dict): keys are the name of the PDB information, values are
@@ -108,6 +109,7 @@ def get_pdb_data(ensemble_csv, desired_cols=minimum_info, label='MyProtein', inf
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns: 
         dataframe of the summary_report
         the saved dataframe (summary_report*.csv)
@@ -242,10 +244,12 @@ def get_pdb_data(ensemble_csv, desired_cols=minimum_info, label='MyProtein', inf
 
 def _fetch_pdb_data(url, pdb, alt_url=None):
     ''' fetch data from a url
+    
     Arguments:
         url (str): base url to fetch from
         pdb (str): the extension to url to fetch from
         alt_url (list str): if fail to fetch from original url try to alt urls
+    
     Returns:
         the json information formatted as a dict
     '''
@@ -274,6 +278,7 @@ def _fetch_pdb_data(url, pdb, alt_url=None):
 
 def _get_pdb_entry_data(pdb, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb entry
+    
     Arguments: 
         pdb (str): pbd id "XXXX"
         desired_cols (dict): columns desired as keys
@@ -282,6 +287,7 @@ def _get_pdb_entry_data(pdb, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -292,6 +298,7 @@ def _get_pdb_entry_data(pdb, desired_cols, cols_to_group=[]):
 
 def _get_pubmed_entry_data(pdb, desired_cols, cols_to_group=[]):
     ''' fetch pubmed data regarding the pdb entry
+    
     Arguments: 
         pdb (str): pbd id "XXXX"
         desired_cols (dict): columns desired as keys
@@ -300,6 +307,7 @@ def _get_pubmed_entry_data(pdb, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -310,6 +318,7 @@ def _get_pubmed_entry_data(pdb, desired_cols, cols_to_group=[]):
 
 def _get_pdb_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb entity
+    
     Arguments: 
         pdb (str): pbd id "XXXX"
         entity (str): entity number
@@ -319,6 +328,7 @@ def _get_pdb_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -331,6 +341,7 @@ def _get_pdb_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
 
 def _get_uniprot_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
     ''' fetch uniprot data regarding the pdb entity
+    
     Arguments: 
         pdb (str): pbd id "XXXX"
         entity (str): entity number
@@ -340,6 +351,7 @@ def _get_uniprot_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -350,6 +362,7 @@ def _get_uniprot_entity_data(pdb, entity, desired_cols, cols_to_group=[]):
 
 def _get_pdb_instance_data(pdb, chain, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb instance (aka chain)
+    
     Arguments: 
         pdb (str): pbd id "XXXX"
         chain (str): instance (note not author labled chain but PDB labeled)
@@ -359,6 +372,7 @@ def _get_pdb_instance_data(pdb, chain, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -371,6 +385,7 @@ def _get_pdb_instance_data(pdb, chain, desired_cols, cols_to_group=[]):
 
 def _get_assembly_data(pdb, assembly, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding the pdb assembly
+    
     Arguments: 
         pdb (str): pbd id "XXXX"
         assembly (str): assembly number
@@ -380,6 +395,7 @@ def _get_assembly_data(pdb, assembly, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -390,6 +406,7 @@ def _get_assembly_data(pdb, assembly, desired_cols, cols_to_group=[]):
 
 def _get_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
     ''' fetch PDB data regarding a chemical
+    
     Arguments: 
         comp_id (str): unique id of that chemical
         desired_cols (dict): columns desired as keys
@@ -398,6 +415,7 @@ def _get_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -408,6 +426,7 @@ def _get_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
 
 def _get_drugbank_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
     ''' fetch drugbank data regarding a chemical
+    
     Arguments: 
         comp_id (str): unique id of that chemical
         desired_cols (dict): columns desired as keys
@@ -416,6 +435,7 @@ def _get_drugbank_chemcomp_data(comp_id, desired_cols, cols_to_group=[]):
             inserting "None" (str) if no data is available for a site to keep everything aligned. Each list contains strings of the column 
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
+    
     Returns:
         dict flatten with only information in desired_cols
     '''
@@ -428,6 +448,7 @@ def _parse_dict_info(info, desired_cols, prefix="", cols_to_group=[],
     '''
     Given the raw output of a fetch from pdb recurssively flattens the
     the dictionary and making any multiple instances into a list string sep: (" ~ ")
+    
     Arguments: 
         info (dict): raw output of pypdb.get_info
         desired_cols (dict): columns desired as keys
@@ -439,7 +460,8 @@ def _parse_dict_info(info, desired_cols, prefix="", cols_to_group=[],
             names that will be included in that group. 
             Example: cols_to_group = [['rcsb_uniprot_feature.type','rcsb_uniprot_feature.description'], ...]
         check_group (None or list of bool): Variable used recursively inside function
-    Output: 
+    
+    Returns: 
         collapsed dictionary with all same information
     '''
     if len(cols_to_group) > 0:
@@ -504,7 +526,7 @@ def _combine_dict_info(new_collapsed_dict, temp, old_info):
         temp (dict): dictionary to add from
         old_info (list of str): list of keys not to change
 
-    Output: 
+    Returns: 
         new_collapsed_dict with the information from temp added
     '''
     for key, value in temp.items():

@@ -186,20 +186,13 @@
 <div class="section" id="module-EnsemblePDB.utils.biopandas_utils">
 <span id="ensemblepdb-utils-biopandas-utils-module"></span><h2>EnsemblePDB.utils.biopandas_utils module<a class="headerlink" href="#module-EnsemblePDB.utils.biopandas_utils" title="Permalink to this headline">¶</a></h2>
 <p>psuedo_ensemble.utils.biopandas_utils</p>
-<p>Basic functions in manipulating pdb in biopandas format</p>
+<p>Basic functions in manipulating pdb in biopandas format.</p>
 <dl class="simple">
 <dt>Author:</dt><dd><p>Rachael Kretsch (<a class="reference external" href="mailto:rkretsch&#37;&#52;&#48;stanford&#46;edu">rkretsch<span>&#64;</span>stanford<span>&#46;</span>edu</a>),
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2021-08-10</p>
-</dd>
 </dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.biopandas_pdb_to_matrix">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">biopandas_pdb_to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.biopandas_pdb_to_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.fetch_and_save_pdb">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">fetch_and_save_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.fetch_and_save_pdb" title="Permalink to this definition">¶</a></dt>
@@ -230,55 +223,6 @@ if already there do not over-write.
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>a pandas dataframe with ‘Entry ID’ and ‘PandasPDB’</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.get_RMSD">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">get_RMSD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomtypes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.get_RMSD" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the RMSD between two structures using all heavy atoms or CA only. Only considers highest occupancy conformers.
-:param struct1, struct2: Paths to .pdb files. May also be a pre-built coord dict.
-:type struct1, struct2: str
-:param chains = list: List of renamed chains to consider for RMSD, e.g. [‘A’]
-:param atomtypes = list: Atom types to calculate RMSD on. ‘all’ or list, e.g. [‘CA’,’CB’]</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>RMSD (float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.get_chain_position_list">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">get_chain_position_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.get_chain_position_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given a BiopandasPDB.df[“ATOM”] and a chain, return a list
-of the 1 character residue names and a list of their positions
-in “chain | residue_number | insert” format.
-:param struct:
-:type struct: BiopandasPDB.df[“ATOM”]
-:param chain: chain to get list
-:type chain: str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>return a list of the 1-letter residue names and a list of their positions
-in “chain | residue_number | insert” format.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.get_chain_position_list_from_seq">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">get_chain_position_list_from_seq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seq</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.get_chain_position_list_from_seq" title="Permalink to this definition">¶</a></dt>
-<dd><p>this is a function for renumber
-if desire to renumber with just a sequence, it will name it all
-chain A and just sequential numbering from there.
-:param seq: str of 1-letter AA sequences
-:type seq: str</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the chain list in “chain | residue_number | isnert” format
-using jsut simple sequential numbering</p>
 </dd>
 </dl>
 </dd></dl>
@@ -323,60 +267,21 @@ know structure exists try again or at worst download pdb yourself!</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.relabel_struct">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">relabel_struct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residue_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_refs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.relabel_struct" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>struct</strong> (<em>Biopandas.pdb</em>) – </p></li>
-<li><p><strong>chain_map</strong> (<em>dict</em>) – old-to-new dictionary of chain identities</p></li>
-<li><p><strong>residue_map</strong> (<em>dict</em>) – old-to-new dictionary of residues in “chain | residue_number | isnert” format</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.replace_biopandas_coords">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">replace_biopandas_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.replace_biopandas_coords" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.retrieve_pdbs">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">retrieve_pdbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PDB_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.retrieve_pdbs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a table with pdb ids in ‘Entry ID’, download
 all the pdb to the directory</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.tranform_coords_pandaspdb">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">tranform_coords_pandaspdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.tranform_coords_pandaspdb" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>struct</strong> (<em>Biopandas.pdb</em>) – </p></li>
-<li><p><strong>matrix</strong> (<em>transform np.array</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.biopandas_utils.transform_coords_matrix">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.biopandas_utils.</span></span><span class="sig-name descname"><span class="pre">transform_coords_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.biopandas_utils.transform_coords_matrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
 <div class="section" id="module-EnsemblePDB.utils.file_management">
 <span id="ensemblepdb-utils-file-management-module"></span><h2>EnsemblePDB.utils.file_management module<a class="headerlink" href="#module-EnsemblePDB.utils.file_management" title="Permalink to this headline">¶</a></h2>
 <p>psuedo_ensemble.utils.file_management</p>
-<p>Help finding were to save output files and prevent overwriting files</p>
+<p>Help finding were to save output files and prevent overwriting files.</p>
 <dl class="simple">
 <dt>Author:</dt><dd><p>Rachael Kretsch (<a class="reference external" href="mailto:rkretsch&#37;&#52;&#48;stanford&#46;edu">rkretsch<span>&#64;</span>stanford<span>&#46;</span>edu</a>),
 Siyuan Du,
 Jacob Parres-Gold</p>
-</dd>
-<dt>Last edited:</dt><dd><p>2020-08-10</p>
 </dd>
 </dl>
 <dl class="py function">
@@ -434,8 +339,6 @@ Can also choose to overwrite it
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2021-08-10</p>
-</dd>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.utils.sequence_alignment.specific_pairwise2_align">
@@ -479,8 +382,6 @@ of values are represented in the table.</p>
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2020-08-10</p>
-</dd>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.delete_all_one_value">
@@ -493,32 +394,6 @@ are identical, otherwise orginal entry.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>either the original string or reduced to the one repeated value</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.get_first_float">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.table_utils.</span></span><span class="sig-name descname"><span class="pre">get_first_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.table_utils.get_first_float" title="Permalink to this definition">¶</a></dt>
-<dd><p>from a table entry return the first value as an int
-:param s: the table entry
-:type s: srt</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the first element in s as a int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.get_largest_float">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.table_utils.</span></span><span class="sig-name descname"><span class="pre">get_largest_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.table_utils.get_largest_float" title="Permalink to this definition">¶</a></dt>
-<dd><p>from a table entry return the largest value as an float
-:param s: the table entry
-:type s: srt</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the largest value as a float</p>
 </dd>
 </dl>
 </dd></dl>
@@ -584,19 +459,6 @@ where * are the reference chains</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.get_smallest_float">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.table_utils.</span></span><span class="sig-name descname"><span class="pre">get_smallest_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.table_utils.get_smallest_float" title="Permalink to this definition">¶</a></dt>
-<dd><p>from a table entry return the smallest value as an float
-:param s: the table entry
-:type s: srt</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the smallest value as a float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.get_table_entry_from_list">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.table_utils.</span></span><span class="sig-name descname"><span class="pre">get_table_entry_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.table_utils.get_table_entry_from_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>from a list get the string to represent it in a table
@@ -630,20 +492,6 @@ where * are the reference chains</p>
 <dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.reformat_dict">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.table_utils.</span></span><span class="sig-name descname"><span class="pre">reformat_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.table_utils.reformat_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create csv friendly entries of dictionaries</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="EnsemblePDB.utils.table_utils.reformat_nested_lists">
-<span class="sig-prename descclassname"><span class="pre">EnsemblePDB.utils.table_utils.</span></span><span class="sig-name descname"><span class="pre">reformat_nested_lists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l_of_l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.utils.table_utils.reformat_nested_lists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply on nested lists to get csv friendly format (str separated by + and ~)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>l_of_l</strong> (<em>list of lists of str</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>str</p>
-</dd>
-</dl>
 </dd></dl>
 
 </div>

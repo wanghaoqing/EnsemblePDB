@@ -181,54 +181,14 @@
 </div>
 <div class="section" id="module-EnsemblePDB.visualize.load_ensemble">
 <span id="ensemblepdb-visualize-load-ensemble-module"></span><h2>EnsemblePDB.visualize.load_ensemble module<a class="headerlink" href="#module-EnsemblePDB.visualize.load_ensemble" title="Permalink to this headline">¶</a></h2>
-<p>pseudo_ensemble.visualize.load_ensemble
-Insert explanation
-Author:</p>
-<blockquote>
-<div><p>Rachael Kretsch (<a class="reference external" href="mailto:rkretsch&#37;&#52;&#48;stanford&#46;edu">rkretsch<span>&#64;</span>stanford<span>&#46;</span>edu</a>), Siyuan Du, Jacob Parres-Gold</p>
-</div></blockquote>
+<p>pseudo_ensemble.visualize.load_ensemble</p>
+<p>TODO</p>
 <dl class="simple">
-<dt>Last edited:</dt><dd><p>2020-01-22</p>
+<dt>Authors:</dt><dd><p>Rachael Kretsch (<a class="reference external" href="mailto:rkretsch&#37;&#52;&#48;stanford&#46;edu">rkretsch<span>&#64;</span>stanford<span>&#46;</span>edu</a>),
+Siyuan Du,
+Jacob Parres-Gold</p>
 </dd>
 </dl>
-<p>Last reviewed:
-.. todo:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>in subset think about homodimer etc.
-save some file that has the old and new chian include split and combine changes
-# file with
-# pdb_old_chain , pdb_new_chain
-# pdb_old_chain , pdb_new_chain
-# etc.
-add input for directory to save output folders
-For sequence renumber right now its sequential allow to specify??
-</pre></div>
-</div>
-<p># TODO is this resistant to the order alignments are put in?
-# temp solution naive align first
-# TODO can also swap around who is reference structure!
-# TODO test if ever has secondary structure visualizing issues after renumbering
-# psico.editing.dssp(‘all’) or use Stride
-# not editing the sec structure (helix sheet) info as it is in the txt of
-# the biopandas object, unclear how pymol maps secondary structure if the pdb
-# text is followed first?
-# VISUALS
-# <a class="reference external" href="https://github.com/msabrowser/msabrowser/tree/master/examples">https://github.com/msabrowser/msabrowser/tree/master/examples</a>
-# <a class="reference external" href="https://github.com/sanderlab/alignmentviewer">https://github.com/sanderlab/alignmentviewer</a>
-# <a class="reference external" href="https://github.com/orangeSi/pymsaploter">https://github.com/orangeSi/pymsaploter</a>
-# MSA
-# <a class="reference external" href="https://github.com/benhid/Sequoya">https://github.com/benhid/Sequoya</a>
-# <a class="reference external" href="http://qiime.org/1.8.0/scripts/align_seqs.html">http://qiime.org/1.8.0/scripts/align_seqs.html</a>
-# TODO consider how deals with non-conventional AAs, gaps, and multiconformers
-# non-conventional labeled as ? in Biopandas pdb and thus not renumbered
-# Gaps
-# in renumbering on relabel what is present in the pdb atom definitions only
-# multiconformers:
-# they are labeled in the alt_loc column and should be preserved here
-# hetatoms
-# in seq alignment just labeled as - … in .df[“HETATOM”]
-# can maybe renumber based on what they are near?
-# or if not match add anyway after merge hetatom and atom?
-# also don’t deal with anisou or ter</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.visualize.load_ensemble.load_ensemble">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.visualize.load_ensemble.</span></span><span class="sig-name descname"><span class="pre">load_ensemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Entry_IDs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_pdb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.visualize.load_ensemble.load_ensemble" title="Permalink to this definition">¶</a></dt>

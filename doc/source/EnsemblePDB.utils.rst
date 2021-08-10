@@ -1,46 +1,45 @@
-EnsemblePDB\.utils package
-==========================
+EnsemblePDB.utils package
+=========================
 
 Submodules
 ----------
 
-EnsemblePDB\.utils\.biopandas\_utils module
--------------------------------------------
+EnsemblePDB.utils.biopandas\_utils module
+-----------------------------------------
 
 .. automodule:: EnsemblePDB.utils.biopandas_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-EnsemblePDB\.utils\.file\_management module
--------------------------------------------
+EnsemblePDB.utils.file\_management module
+-----------------------------------------
 
 .. automodule:: EnsemblePDB.utils.file_management
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-EnsemblePDB\.utils\.sequence\_alignment module
-----------------------------------------------
+EnsemblePDB.utils.sequence\_alignment module
+--------------------------------------------
 
 .. automodule:: EnsemblePDB.utils.sequence_alignment
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-EnsemblePDB\.utils\.table\_utils module
----------------------------------------
+EnsemblePDB.utils.table\_utils module
+-------------------------------------
 
 .. automodule:: EnsemblePDB.utils.table_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: EnsemblePDB.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

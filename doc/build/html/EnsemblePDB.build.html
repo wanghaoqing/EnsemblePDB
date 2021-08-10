@@ -190,27 +190,20 @@
 Siyuan Du,
 Jacob Parres-Gold</p>
 </dd>
-<dt>Last edited:</dt><dd><p>2020-08-10</p>
-</dd>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="EnsemblePDB.build.alignment.align_all_pymol">
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.build.alignment.</span></span><span class="sig-name descname"><span class="pre">align_all_pymol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_pdb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_pdb_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BLOSUM62'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'align'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.build.alignment.align_all_pymol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Aligns all pdb in directory to the reference_pdb using the specifed alignment;
-Saves alignment output file and an rmsd summary file
-:param directory: directory where renamed PDB files are saved
-:type directory: str
-:param reference_pdb: Entry ID of the reference pdb in the given directory, if not specified, assumes first object in the directory is reference pdb
-:type reference_pdb: str
-:param reference_pdb_file: path to the reference pdb file if desired reference pdb is not in the given directory, will use this only if reference_pdb is not given.
-:type reference_pdb_file: str
-:param alignment: Pymol selection on which to do final alignment. Use only word selection language (e.g. chain A and name CA), not “/” selection.</p>
-<blockquote>
-<div><p>(alignment parameters) <a class="reference external" href="https://pymolwiki.org/index.php/Align">https://pymolwiki.org/index.php/Align</a></p>
-</div></blockquote>
+Saves alignment output file and an rmsd summary file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>str</em>) – directory where renamed PDB files are saved</p></li>
+<li><p><strong>reference_pdb</strong> (<em>str</em>) – Entry ID of the reference pdb in the given directory, if not specified, assumes first object in the directory is reference pdb</p></li>
+<li><p><strong>reference_pdb_file</strong> (<em>str</em>) – path to the reference pdb file if desired reference pdb is not in the given directory, will use this only if reference_pdb is not given.</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – Pymol selection on which to do final alignment. Use only word selection language (e.g. chain A and name CA), not “/” selection.
+(alignment parameters) <a class="reference external" href="https://pymolwiki.org/index.php/Align">https://pymolwiki.org/index.php/Align</a></p></li>
 <li><p><strong>loaded</strong> (<em>bool</em>) – whether the structures are already loaded in pymol. If not, will load everything in the given directory</p></li>
 <li><p><strong>cutoff</strong> (<em>float</em>) – outlier rejection cutoff in RMS {default: 2.0}</p></li>
 <li><p><strong>cycles</strong> (<em>int</em>) – maximum number of outlier rejection cycles
@@ -237,31 +230,35 @@ is reccomended {default: “align”}</p></li>
 <span class="sig-prename descclassname"><span class="pre">EnsemblePDB.build.alignment.</span></span><span class="sig-name descname"><span class="pre">multiple_alignments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loaded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_pdb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">naive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BLOSUM62'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'align'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#EnsemblePDB.build.alignment.multiple_alignments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of alignments performs all alignments
 output the indiviual alignment summaries and save the aligned pdbs, and then output
-a summary of the comparitive performance of all alignments
-Inputs:</p>
-<blockquote>
-<div><p>directory (str): renamed PDB folder
-output_directory (str): folder to save all files to.
-reference_pdb (str): the pdb id of reference, if not given assume it is at the top of the objects
-naive (bool): if True do a naive alignment on all atoms {default: False}
-cutoff (float): outlier rejection cutoff in RMS {default: 2.0}
-cycles (int): maximum number of outlier rejection cycles</p>
-<blockquote>
-<div><p>{default: 5}</p>
-</div></blockquote>
-<p>gap (float): {default: 10.0}
-max_gap (int): {default: 50}
-extend (float): {default: 0.5}
-max_skip (int): {default: 0}
-matrix (String):  name of substitution matrix for sequence alignment</p>
-<blockquote>
-<div><p>{default: ‘BLOSUM62’}</p>
-</div></blockquote>
-</div></blockquote>
-<p>Returns: rmsd stats
-Outputs: save the alignment output and all-atom rmsd for all alignments, and
+a summary of the comparitive performance of all alignments</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>str</em>) – renamed PDB folder</p></li>
+<li><p><strong>output_directory</strong> (<em>str</em>) – folder to save all files to.</p></li>
+<li><p><strong>reference_pdb</strong> (<em>str</em>) – the pdb id of reference, if not given assume it is at the top of the objects</p></li>
+<li><p><strong>naive</strong> (<em>bool</em>) – if True do a naive alignment on all atoms {default: False}</p></li>
+<li><p><strong>cutoff</strong> (<em>float</em>) – outlier rejection cutoff in RMS {default: 2.0}</p></li>
+<li><p><strong>cycles</strong> (<em>int</em>) – maximum number of outlier rejection cycles
+{default: 5}</p></li>
+<li><p><strong>gap</strong> (<em>float</em>) – {default: 10.0}</p></li>
+<li><p><strong>max_gap</strong> (<em>int</em>) – {default: 50}</p></li>
+<li><p><strong>extend</strong> (<em>float</em>) – {default: 0.5}</p></li>
+<li><p><strong>max_skip</strong> (<em>int</em>) – {default: 0}</p></li>
+<li><p><strong>matrix</strong> (<em>String</em>) – name of substitution matrix for sequence alignment
+{default: ‘BLOSUM62’}</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rmsd stats</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Outputs:</dt><dd><p>save the alignment output and all-atom rmsd for all alignments, and
 pdbs for all alignment in labeled folders. Then save a summary statistics comparing
 all alignments.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -273,8 +270,6 @@ all alignments.</p>
 <dt>Authors:</dt><dd><p>Rachael Kretsch (<a class="reference external" href="mailto:rkretsch&#37;&#52;&#48;stanford&#46;edu">rkretsch<span>&#64;</span>stanford<span>&#46;</span>edu</a>)
 Siyuan Du (<a class="reference external" href="mailto:dusiyuan&#37;&#52;&#48;stanford&#46;edu">dusiyuan<span>&#64;</span>stanford<span>&#46;</span>edu</a>)
 Jacob Parres-Gold</p>
-</dd>
-<dt>Last edited:</dt><dd><p>2020-08-10</p>
 </dd>
 </dl>
 <dl class="py function">

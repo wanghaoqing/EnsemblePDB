@@ -33,8 +33,10 @@ def get_MDev(directory, chains, reference_PDB, multiconformers=False,
         output_directory (str): Directory to save output MDev files to. If None, saves to the parent of given directory {default: None}
         bootstrap (bool): if bootstrap is True, perform bootstrap analysis and include standard deviation of the bootstrap distribution. Notice that this may take a long time to complete for large number of atoms {default: True}
         iter (int): number of iteration to resample data for bootstrap analysis {default: 50}
+    
     Returns:
         Dict, keys = chains (str), entries = DataFrames of MDev values for each atom.
+    
     Saves MDev files to given output directory or default.
     '''
     ppdbs = get_PandasPDBs(directory)
@@ -54,14 +56,17 @@ def get_distance_distributions(directory, chains, multiconformers=False,
                                output_directory=None):
     '''
     Get all coordinates for an atom in the ensemble and calculate the distance of each from the center atom of the ensemble and from the average position. Also determines whether a position is an outlier of the ensemble based on given quantile. 
-    Argumentss:
+    
+    Arguments:
         directory (str): folder of all aligned PDB file.
         chains (list): list of selected chain to get atoms 
         quantile (float): the quantile of data used to identify outliers {default: 0.95} 
         report_outliers (bool): if True, calculates the number of outliers in each PDB structure and saves a separate file.
         output_directory (str): Directory to save output files to. If None, saves to the parent of given directory {default: None}
-    Out:
+    
+    Returns:
         dict, key = chains, value = dataframe with new columns of distance from center atom and average position and outlier
+    
     Saves atomic positions and their distances from center/average position as a csv. Saves outlier report if user chose to get it.
     '''
     ppdbs = get_PandasPDBs(directory)

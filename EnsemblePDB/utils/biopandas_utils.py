@@ -10,11 +10,8 @@ Author:
 
 from biopandas.pdb import PandasPdb
 from pathlib import Path
-from Bio.PDB import PDBParser
-from Bio.SeqUtils.IUPACData importprotein_letters_3to1
 
 import pandas as pd
-import numpy as np
 from tqdm import tqdm
 
 
