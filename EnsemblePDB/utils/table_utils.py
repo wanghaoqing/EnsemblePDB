@@ -1,4 +1,4 @@
-""" psuedo_ensemble.utils.table_utils
+""" EnsemblePDB.utils.table_utils
 
 Help interpretting the csv output format, specifically with how lists
 of values are represented in the table.
@@ -122,6 +122,20 @@ def reformat_dict(d):
         entries.append(str(key) + ' : ' + str(val))
     return ' ~ '.join(entries)
 
+
+def reformat_nested_lists(l_of_l):
+    '''
+    Apply on nested lists to get csv friendly format (str separated by + and ~)
+    
+    Arguments:
+        l_of_l (list of lists of str)
+    Returns:
+        str
+    '''
+    l_of_c = []
+    for l in l_of_l:
+        l_of_c.append(' + '.join(l))
+    return ' ~ '.join(l_of_c)
 
 def contains_keyword(x, name, col='rscb-polymer-entity: description', index=0):
     '''

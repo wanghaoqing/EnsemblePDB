@@ -1,1 +1,1 @@
-import pseudo_ensemble.visualize.load_ensemble
+import EnsemblePDB.visualize.load_ensemble

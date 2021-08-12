@@ -1,4 +1,4 @@
-''' pseudo_ensemble.build.alignment
+''' EnsemblePDB.build.alignment
 
 pymol function
 

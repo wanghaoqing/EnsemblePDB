@@ -1,4 +1,4 @@
-""" psuedo_ensemble.utils.anlysis_utils
+""" EnsemblePDB.utils.anlysis_utils
 
 Basic functions in analysis atomic positions.
 
@@ -9,6 +9,8 @@ Author:
 """
 
 import numpy as np
+from tqdm import tqdm
+import pandas as pd
 from functools import reduce
 from sklearn.utils import resample
 from EnsemblePDB.utils.file_management import get_nonexistant_file

@@ -1,4 +1,4 @@
-'''pseudo_ensemble.build.renumber
+'''EnsemblePDB.build.renumber
 
 Functions to renumber PDBs by reference chains or sequences
 

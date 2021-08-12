@@ -1,4 +1,4 @@
-""" psuedo_ensemble.utils.biopandas_utils
+""" EnsemblePDB.utils.biopandas_utils
 
 Basic functions in manipulating pdb in biopandas format.
 

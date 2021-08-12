@@ -4,6 +4,14 @@ EnsemblePDB.utils package
 Submodules
 ----------
 
+EnsemblePDB.utils.analysis\_utils module
+----------------------------------------
+
+.. automodule:: EnsemblePDB.utils.analysis_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 EnsemblePDB.utils.biopandas\_utils module
 -----------------------------------------
 
@@ -16,6 +24,14 @@ EnsemblePDB.utils.file\_management module
 -----------------------------------------
 
 .. automodule:: EnsemblePDB.utils.file_management
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+EnsemblePDB.utils.search\_utils module
+--------------------------------------
+
+.. automodule:: EnsemblePDB.utils.search_utils
    :members:
    :undoc-members:
    :show-inheritance:

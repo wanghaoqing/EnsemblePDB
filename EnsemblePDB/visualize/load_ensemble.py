@@ -1,4 +1,4 @@
-''' pseudo_ensemble.visualize.load_ensemble
+''' EnsemblePDB.visualize.load_ensemble
 
 TODO
 

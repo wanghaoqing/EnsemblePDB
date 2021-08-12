@@ -1,4 +1,4 @@
-'''pseudo_ensemble.analysis.atoms
+'''EnsemblePDB.analysis.atoms
 
 Functions to analyze deviation of atom positions within the aligned ensembles.
 
@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from EnsemblePDB.utils.file_management import get_nonexistant_file
 from EnsemblePDB.utils.biopandas_utils import get_PandasPDBs, get_xyz, clean_multiconformers
-from EnsemblePDB.utils.anlaysis_utils import *
+from EnsemblePDB.utils.analysis_utils import *
 
 
 def get_MDev(directory, chains, reference_PDB, multiconformers=False,

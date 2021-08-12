@@ -1,4 +1,4 @@
-''' pseudo_ensemble.search.get_structure
+''' EnsemblePDB.search.get_structure
 
 TODO
 

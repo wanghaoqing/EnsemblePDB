@@ -1,4 +1,4 @@
-""" pseudo_ensemble.refine.filter_ensemble
+""" EnsemblePDB.refine.filter_ensemble
 
 Functions to filter ensemble summary reports by organisms, keywords, mutations, resolution.
 

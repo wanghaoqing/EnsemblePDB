@@ -1,4 +1,4 @@
-""" psuedo_ensemble.utils.file_management
+""" EnsemblePDB.utils.file_management
 
 Help finding were to save output files and prevent overwriting files.
 
