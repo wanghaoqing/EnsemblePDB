@@ -52,13 +52,18 @@ def check_multimer_chains(ensemble_csv, allowance=10, output_directory=None):
         mask3 = pd.isna(df['aligned_seqs'])
         defect = df.loc[(~mask1) | mask2 | mask3]
         if len(defect) > 0:
-            print(f"Warning: PDBs{defect['pdb'].tolist()} have invalue values in order of chains and aligned sequences. Filtered, suggest manual check.")
+            print(f"Warning: PDBs{defect['pdb'].tolist()} have invalid values in order of chains and aligned sequences. Filtered, suggest manual check.")
         df = df.loc[mask1 & (~mask2) & (~mask3)]
+        if len(df) == 0:
+            continue
         all_seq_align[chain] = df
+    if len(all_seq_align) == 0:
+        print('No pdbs left to check. Suggest manual check.')
+        return
 
     for ref_chain, chain_df in all_seq_align.items():
-        no_align = chain_df.loc[chain_df['aligned_chains'].apply(
-            lambda x: len(x) == 0)]
+        chain_df['aligned_chains'] = chain_df['aligned_chains'].apply(lambda x: [] if x == [""] else x)
+        no_align = chain_df.loc[chain_df['aligned_chains'].apply(lambda x: (len(x) == 0))]
         multiple_align = chain_df.loc[chain_df['aligned_chains'].apply(
             lambda x: len(x) > 1)]
         if len(multiple_align) > 0:

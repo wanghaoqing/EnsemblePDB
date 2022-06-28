@@ -15,7 +15,7 @@ from EnsemblePDB.utils.file_management import get_nonexistant_file
 from EnsemblePDB.utils.table_utils import contains_keyword,wrong_organism,check_mutations
 
 
-def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None,
+def filter_pdb_data(summary_report_csv, protein_name='', exclude_terms=None,
                     max_res=None, organism=None, max_muts=None,
                     output_directory=None):
     '''
@@ -64,10 +64,11 @@ def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None,
 
     # Filters
     summary_report["Filtering out"] = False
-    summary_report['Correct protein'] = summary_report.apply(
-        lambda x: contains_keyword(x, protein_name), axis=1)
-    summary_report['Filtering out'] = summary_report['Filtering out'] | (
-        ~summary_report['Correct protein'])
+    if protein_name:
+        summary_report['Correct protein'] = summary_report.apply(
+            lambda x: contains_keyword(x, protein_name), axis=1)
+        summary_report['Filtering out'] = summary_report['Filtering out'] | (
+            ~summary_report['Correct protein'])
     if exclude_terms is not None:
         for term in exclude_terms:
             summary_report['Entity description contains excluded words'] = summary_report.apply(
@@ -81,19 +82,20 @@ def filter_pdb_data(summary_report_csv, protein_name, exclude_terms=None,
                                            summary_report["Too low resolution"])
     if organism is not None:
         summary_report["Wrong organism"] = summary_report.apply(
-            lambda x: wrong_organism(x, protein_name, organism), axis=1)
+            lambda x: wrong_organism(x, organism), axis=1)
         summary_report["Filtering out"] = (summary_report['Filtering out'] |
                                            summary_report["Wrong organism"])
     if max_muts is not None:
         summary_report["Too many mutations"] = summary_report.apply(
-            lambda x: check_mutations(x, protein_name, max_muts), axis=1)
+            lambda x: check_mutations(x, max_muts), axis=1)
         summary_report["Filtering out"] = (summary_report['Filtering out'] |
                                            summary_report["Too many mutations"])
 
-    filtered = summary_report.loc[~summary_report['Filtering out']].drop(
-        ['Filtering out', 'Correct protein',
+    all_param = ['Filtering out', 'Correct protein',
          'Entity description contains excluded words', 'Too low resolution',
-         'Wrong organism', 'Too many mutations'], axis=1)
+         'Wrong organism', 'Too many mutations']
+    filtered = summary_report.loc[~summary_report['Filtering out']].drop(
+[x for x in all_param if x in summary_report.columns], axis=1)
     if not output_directory:
         parent_dir = str(Path(summary_report_csv).parents[0])
         output_file_full = get_nonexistant_file(

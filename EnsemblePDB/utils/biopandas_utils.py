@@ -65,13 +65,13 @@ def get_PandasPDBs(path):
     return PDB_df
 
 
-def get_chain_seq(struct, chain, remove_his_tag=False):
+def get_chain_seq(struct, chain, remove_his_tag=True):
     '''
     Gets the sequence of a chain in a structure
     Arguments: 
         struct (Biopandas.pdb)
         chain (str): identity of the chain of interest
-        remove_his_tag (bool): remove the 6x his tage if present {default: False}
+        remove_his_tag (bool): remove the 6x his tage if present {default: True}
     Returns: 
         str: sequence of the chain with 1-letter AA code from struct
     '''

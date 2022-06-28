@@ -157,6 +157,8 @@ def _get_TER_old_to_new(chain_old_to_new):
     Assume chains to be combined are in order!
     '''
     TER_old_to_new = {}
+    if not chain_old_to_new:
+        return TER_old_to_new
     last_key = list(chain_old_to_new.keys())[0]
     last_chain = chain_old_to_new[last_key]
     for key, value in chain_old_to_new.items():
@@ -180,6 +182,8 @@ def _change_TER_record(pdb_struct, chain_old_to_new):
     Rename other TER lines with new chain id
     '''
     TER_old_to_new = _get_TER_old_to_new(chain_old_to_new)
+    if not TER_old_to_new:
+        return pdb_struct
     TER = pdb_struct.df['OTHERS'].loc[pdb_struct.df['OTHERS']
                                       ['record_name'] == 'TER']
     new_rows = []
@@ -268,6 +272,7 @@ def _rename_chains(row, reference_chains, directory, new_directory, combine_chai
     pdb_struct.df['ANISOU']['chain_id'] = pdb_struct.df['ANISOU']['chain_id'].map(
         chain_old_to_new).fillna("Z")
     # TER records, delete combined chain TER lines and change others
+    # if not no_combinations_suggested:
     pdb_struct = _change_TER_record(pdb_struct, chain_old_to_new)
 
     renamed_pdb = path.join(new_directory, row['Entry ID'].lower()+'.pdb')
@@ -453,9 +458,11 @@ def _save_multimers(row, reference_chains, renumbered_directory):
             pdb_copy = PandasPdb().read_pdb(pdb_file)
             pdb_copy.df['ATOM']['chain_id'] = pdb_copy.df['ATOM'].apply(
                 lambda x: _swap_chains(x, target=chain), axis=1)
-            pdb_copy.df['ANISOU']['chain_id'] = pdb_copy.df['ANISOU'].apply(
-                lambda x: _swap_chains(x, target=chain), axis=1)
-            pdb_copy.df['HETATM']['chain_id'] = pdb_copy.df['HETATM'].apply(
+            if len(pdb_copy.df['ANISOU']) != 0:
+                pdb_copy.df['ANISOU']['chain_id'] = pdb_copy.df['ANISOU'].apply(
+                    lambda x: _swap_chains(x, target=chain), axis=1)
+            if len(pdb_copy.df['HETATM']) != 0:
+                pdb_copy.df['HETATM']['chain_id'] = pdb_copy.df['HETATM'].apply(
                 lambda x: _swap_chains(x, target=chain), axis=1)
             copy_fname = path.join(renumbered_directory,
                                    row['Entry ID'].lower()+'_'+chain+'.pdb')

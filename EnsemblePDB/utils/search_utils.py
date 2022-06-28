@@ -28,8 +28,7 @@ def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=10):
             sequence and the chain(s) that matches
     '''
 
-    search_operator = pypdb.clients.search.operators.sequence_operators.SequenceOperator(sequence=sequence,
-                                                                                         evalue_cutoff=evalue, identity_cutoff=seq_id)
+    search_operator = pypdb.clients.search.operators.sequence_operators.SequenceOperator(sequence=sequence, evalue_cutoff=evalue, identity_cutoff=seq_id)
     results = pypdb.search_client.perform_search_with_graph(
         query_object=search_operator, return_type=pypdb.search_client.ReturnType.POLYMER_ENTITY, return_raw_json_dict=True)
 

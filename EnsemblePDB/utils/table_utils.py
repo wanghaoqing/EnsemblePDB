@@ -122,6 +122,17 @@ def reformat_dict(d):
         entries.append(str(key) + ' : ' + str(val))
     return ' ~ '.join(entries)
 
+def get_dict(reformatted_dict):
+    '''
+    Get dictionary from reformatted csv entry
+    '''
+    d = {}
+    list_of_map = reformatted_dict.split('~')
+    for _map in list_of_map:
+        original = _map.split(':')[0].strip()
+        renamed = _map.split(':')[1].strip()
+        d[original] = renamed
+    return d
 
 def reformat_nested_lists(l_of_l):
     '''
@@ -156,7 +167,7 @@ def contains_keyword(x, name, col='rscb-polymer-entity: description', index=0):
         return False
 
 
-def wrong_organism(x, name, orgs):
+def wrong_organism(x, orgs):
     '''
     Apply on rows of dataframes to check whether the protein is from a given organism
     Arguments:
@@ -174,7 +185,7 @@ def wrong_organism(x, name, orgs):
     return wrong_org
 
 
-def check_mutations(x, name, max_muts):
+def check_mutations(x, max_muts):
     '''
     Apply on rows of dataframes to check whether the protein has mutation exceeding (>=) max mutation limit
     Arguments:
@@ -185,7 +196,7 @@ def check_mutations(x, name, max_muts):
         bool
     '''
     mutations = str(x['entity-polymer: mutation_count']).split('~')
-    if int(mutations[0]) >= max_muts:
+    if int(mutations[0]) > max_muts:
         return True
     else:
         return False
