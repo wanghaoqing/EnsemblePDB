@@ -106,8 +106,8 @@ def get_distance_distributions(directory, chains, multiconformers=False,
 
         for i, index in tqdm(enumerate(atoms.index.unique()),
                              total=len(atoms.index.unique()),
-                             desc=f'Calculating distances and' +
-                             'outliers in chain {chain}'):
+                             desc='Calculating distances and ' +
+                             f'outliers in chain {chain}'):
             atom = atoms.loc[index, :].copy()
             atom['xyz_spread'] = (calculate_msd(atom['x_coord']) +
                                   calculate_msd(atom['y_coord']) +

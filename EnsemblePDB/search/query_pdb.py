@@ -76,9 +76,9 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
             list), "reference_pdb_chains must be a list, eg ['A']"
     assert (all(isinstance(s, str)
                 for s in reference_chains)), "Chains must be strings."
-    print(f"A reference pdb was inputted. Will search PDB for structures"
-          f" that align to sequence(s) of {reference_pdb} chains "
-          f"{reference_chains}.")
+    # # print(f"A reference pdb was inputted. Will search PDB for structures"
+    #       f" that align to sequence(s) of {reference_pdb} chains "
+    #       f"{reference_chains}.")
     if macromolecule_name is not None:
         assert (type(macromolecule_name) ==
                 str), "macromolecule_name must be a string."
@@ -95,24 +95,29 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
 
     # get list of all x-ray structures
     if not xray_only:
-        print("WARNING: obtaining all structures, including structures from "
-              "methods other than X-ray crystallography.")
+        # print("WARNING: obtaining all structures, including structures from "
+            #   "methods other than X-ray crystallography.")
         xray_pdbs = []
     else:
-        print("Looking for X-ray crystallographic structures.")
+        # print("Looking for X-ray crystallographic structures.")
         xray_pdbs = pypdb.Query('X-RAY DIFFRACTION',
                                 query_type='ExpTypeQuery').search()
-        assert (xray_pdbs is not None), "PDB search failed, try again."
+        if not xray_pdbs:
+            # print("No PDB structures found.")
+            return 
+        # assert (xray_pdbs is not None), "PDB search failed, try again."
 
     # if macrmolecule_name specified get list of pdbs with macromolecular name
     if macromolecule_name is not None:
-        print(f"Looking for structures with name {macromolecule_name}")
-
+        # print(f"Looking for structures with name {macromolecule_name}")
         search_operator = pypdb.clients.search.operators.text_operators.ContainsPhraseOperator(
             value=macromolecule_name, attribute="rcsb_polymer_entity.rcsb_macromolecular_names_combined.name")
         return_type = pypdb.clients.search.search_client.ReturnType.ENTRY
         name_pdbs = pypdb.perform_search(search_operator, return_type)
-        assert (name_pdbs is not None), "PDB macromolecule search failed, try again"
+        if not name_pdbs:
+            # print("No PDB structures found.")
+            return 
+        # assert (name_pdbs is not None), "PDB macromolecule search failed, try again"
 
         # only keep structures that are x-ray structures
         if xray_only:
@@ -145,7 +150,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     seq_chain_list = None
     for i, seq in enumerate(sequences):
         search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
-        print(f"Saving sequence search raw output in {search_sum_file}.")
+        # print(f"Saving sequence search raw output in {search_sum_file}.")
         temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
 
         if seq_chain_list is None:
@@ -164,8 +169,8 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
         output = output.merge(macro_output, how="outer", on="Entry ID")
 
     # get all chains and there alignments
-    print("Adding all chain alignment information. For large datasets this may"
-          " take some time.")
+    # print("Adding all chain alignment information. For large datasets this may"
+        #   " take some time.")
     output = get_all_chain_alignments_for_table_multi(seq_id,
                                                        output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
     output = output.applymap(delete_all_one_value)
@@ -228,8 +233,8 @@ def query_by_sequence(sequences,
             list), "Sequences must be a list even if with one element."
     assert (all(isinstance(s, str)
                 for s in sequences)), "Sequences must be strings."
-    print(f"Sequence(s)inputted. Will search PDB for "
-          f"{len(sequences)} sequence(s).")
+    # print(f"Sequence(s)inputted. Will search PDB for "
+    #       f"{len(sequences)} sequence(s).")
     if macromolecule_name is not None:
         assert (type(macromolecule_name) ==
                 str), "macromolecule_name must be a string."
@@ -246,25 +251,29 @@ def query_by_sequence(sequences,
 
     # get list of all x-ray structures
     if not xray_only:
-        print("WARNING: obtaining all structures, including structures from "
-              "methods other than X-ray crystallography.")
+        # print("WARNING: obtaining all structures, including structures from "
+            #   "methods other than X-ray crystallography.")
         xray_pdbs = []
     else:
-        print("Looking for X-ray crystallographic structures.")
+        # print("Looking for X-ray crystallographic structures.")
         xray_pdbs = pypdb.Query('X-RAY DIFFRACTION',
                                 query_type='ExpTypeQuery').search()
-        assert (xray_pdbs is not None), "PDB search failed, try again."
+        # assert (xray_pdbs is not None), "PDB search failed, try again."
+        if not xray_pdbs:
+            # print("No PDB structures found.")
+            return 
 
     # if macrmolecule_name specified get list of pdbs with macromolecular name
     if macromolecule_name is not None:
-        print(f"Looking for structures with name {macromolecule_name}")
-
+        # print(f"Looking for structures with name {macromolecule_name}")
         search_operator = pypdb.text_operators.ContainsPhraseOperator(
             value=macromolecule_name, attribute="rcsb_polymer_entity.rcsb_macromolecular_names_combined.name")
         return_type = pypdb.ReturnType.ENTRY
         name_pdbs = pypdb.perform_search(search_operator, return_type)
-        assert (name_pdbs is not None), "PDB macromolecule search failed, try again"
-
+        # assert (name_pdbs is not None), "PDB macromolecule search failed, try again"
+        if not name_pdbs:
+            # print("No PDB structures found.")
+            return 
         # only keep structures that are x-ray structures
         if xray_only:
             pdb_list = [pdb for pdb in xray_pdbs if pdb in name_pdbs]
@@ -294,7 +303,7 @@ def query_by_sequence(sequences,
     seq_chain_list = None
     for i, seq in enumerate(sequences):
         search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
-        print(f"Saving sequence search raw output in {search_sum_file}.")
+        # print(f"Saving sequence search raw output in {search_sum_file}.")
         temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
 
         if seq_chain_list is None:
@@ -313,8 +322,8 @@ def query_by_sequence(sequences,
         output = output.merge(macro_output, how="outer", on="Entry ID")
 
     # get all chains and there alignments
-    print("Adding all chain alignment information. For large datasets this may"
-          " take some time.")
+    # print("Adding all chain alignment information. For large datasets this may"
+        #   " take some time.")
     output = get_all_chain_alignments_for_table_multi(seq_id,
                                                        output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
     output = output.applymap(delete_all_one_value)

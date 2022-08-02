@@ -15,11 +15,12 @@ import pandas as pd
 import numpy as np
 from biopandas.pdb import PandasPdb
 from tqdm import tqdm
+from re import match
 
 from EnsemblePDB.utils.sequence_alignment import specific_pairwise2_align
 from EnsemblePDB.utils.file_management import get_dir,get_nonexistant_file
 from EnsemblePDB.utils.biopandas_utils import get_chain_seq,retrieve_pdbs
-from EnsemblePDB.utils.table_utils import get_reference_chains,reformat_dict,get_table_entry_from_list,get_list_from_table_entry,get_nested_lists
+from EnsemblePDB.utils.table_utils import get_reference_chains,reformat_dict,get_table_entry_from_list,get_list_from_table_entry,get_nested_lists, match_names
 
 def download_and_renumber(summary_report_csv, reference_pdb=None,
                           reference_chains=None,
@@ -72,6 +73,11 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
 
     # Retrieve data in the ensemble_csv
     data = pd.read_csv(summary_report_csv)
+    # Check validity of csv format
+    assert('Entry ID' in data.columns), "Summary csv does not contain column: Entry ID"
+    assert(any([True if match('Align ref .*: chains aligned', x) else False for x in data.columns])), "Summary csv does not contain column: Align ref *: chains aligned"
+    assert(any([True if match('Align ref .*: order of chains', x) else False for x in data.columns])), "Summary csv does not contain column: Align ref *: order of chains"
+    assert(any([True if match('Align ref .*: pairwise align score', x) else False for x in data.columns])), "Summary csv does not contain column: Align ref *: pairwise align score"
 
     # save data to
     output_directory = str(Path(summary_report_csv).parents[0])
@@ -91,14 +97,16 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
         output_directory+'/Renumbered_unaligned_pdbs')
     # rename chains
     tqdm.pandas(desc="Renaming chains")
-    # Remove pdbs not downloaded
-    data = data.drop(data[data['Entry ID'].apply(lambda y: y.lower() not in [
-                     x[:4].lower() for x in listdir(directory)])].index, axis=0)
-
+    # Remove pdbs in summary csv but not downloaded
+    to_drop = match_names(pdb_dir = directory, summary_df=data)
+    data = data.drop(to_drop, axis=1)
+    # data = data.drop(data[data['Entry ID'].apply(lambda y: y.lower() not in [x[:4].lower() for x in listdir(directory)])].index, axis=0)
+    # else:
+    #     data['Entry ID'] = data['Entry ID'].apply(lambda y: y.lower())
     data['Renamed: old to new chain'] = data.progress_apply(lambda row: _rename_chains(
         row, table_references, directory, renumbered_directory, combine_chains_by), axis=1)
     # get new reference chains
-    ref_row = data.loc[data['Entry ID'] == reference_pdb.upper()].iloc[0]
+    ref_row = data.loc[(data['Entry ID'] == reference_pdb) | (data['Entry ID'] == reference_pdb.upper()) | (data['Entry ID'] == reference_pdb.lower())].iloc[0]
     chain_dict = ref_row['Renamed: old to new chain']
     new_ref_chains = list(set([chain_dict[c] for c in reference_chains]))
     # get list of renamed chains that align to each reference sequence

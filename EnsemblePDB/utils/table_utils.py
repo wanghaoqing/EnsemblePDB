@@ -9,7 +9,8 @@ Author:
     Jacob Parres-Gold
 """
 
-import re
+from re import compile
+from os import listdir
 
 
 def get_list_from_table_entry(s):
@@ -91,7 +92,7 @@ def get_reference_chains(df):
         a list of reference chains in df
     '''
     cols = list(df.columns)
-    r = re.compile('.*order of chains')
+    r = compile('.*order of chains')
     ref_chains = []
     for col in filter(r.match, cols):
         ref_chains.append(col.split(":")[0][10:])
@@ -200,3 +201,15 @@ def check_mutations(x, max_muts):
         return True
     else:
         return False
+
+def match_names(pdb_dir, summary_df):
+    '''
+    Check if summary dataframe entries are in the PDB directory; assumes the dataframe has "Entry ID" column.
+    '''
+    Entry_IDs = summary_df['Entry ID'].tolist()
+    pdbs = ['.'.join(x.split('.')[:-1]) for x in listdir(pdb_dir)]
+    to_drop = []
+    for x in Entry_IDs:
+        if (x not in pdbs) and (x.lower() not in pdbs) and (x.upper() not in pdbs):
+            to_drop.append(x)
+    return to_drop
