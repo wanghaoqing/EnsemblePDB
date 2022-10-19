@@ -8,12 +8,13 @@ Authors:
     Jacob Parres-Gold
 '''
 
-from pymol import cmd
+import pymol.cmd as pymolcmd
 from os import path
 from pathlib import Path
 import pandas as pd
+from sklearn.neighbors import RadiusNeighborsClassifier
 
-def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, split_chains=False, groups=None):
+def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, groups=None, group_by='Crude subensemble', cmd=pymolcmd):
     '''
     Function that loads every pdb in a folder, reference first.
     Arguments: 
@@ -50,40 +51,41 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, split_chains=F
         reference_pdb = reference_pdb[:4].lower()+reference_pdb[4:]
         ref_file = Path(directory) / f"{reference_pdb}.pdb"
         assert (path.isfile(ref_file)), f"{ref_file} is not a file."
+        ref_file = str(ref_file)
         cmd.load(ref_file)
 
-        if split_chains:
-            cmd.split_chains(reference_pdb)
-            cmd.group(reference_pdb + "_", " ".join(
-                [name for name in cmd.get_names() if name[:4] == reference_pdb]))
+        # if split_chains:
+        #     cmd.split_chains(reference_pdb)
+        #     cmd.group(reference_pdb + "_", " ".join(
+        #         [name for name in cmd.get_names() if name[:4] == reference_pdb]))
         files.remove(ref_file)
     for file in files:
-        cmd.load(file)
-        pdb = file.stem  
-        if split_chains:
-            cmd.split_chains(pdb)
-            cmd.group(
-                pdb + "_", " ".join([name for name in cmd.get_names() if name[:4] == pdb]))
+        cmd.load(str(file))
+        # pdb = file.stem  
+        # if split_chains:
+        #     cmd.split_chains(pdb)
+        #     cmd.group(
+        #         pdb + "_", " ".join([name for name in cmd.get_names() if name[:4] == pdb]))
 
     if groups is not None:
-
-        pdbs = [file.stem for file in files]
-        groups = pd.read_csv(groups)
-        group_pdbs = groups["Entry ID"].str.lower().tolist()
-        extra_entry = groups[~groups["Entry ID"].str.lower().isin(pdbs)][
-            "Entry ID"].str.lower().tolist()
-        print("Some pdbs in the inputed dataframe are not in the directory", extra_entry)
-        groups = groups[groups["Entry ID"].str.lower().isin(pdbs)]
-        extra_pdbs = [pdb for pdb in pdbs if not pdb in group_pdbs]
-        print("WARNING these pdbs were found in the directory but not in the inputted dataframe", extra_pdbs)
-        for subensemble in groups["Subensemble"].unique():
-            sub_group = groups[groups["Subensemble"] == subensemble][
-                "Entry ID"].str.lower().tolist()
+        pdb_names = [file.stem.lower() for file in files]
+        # groups = pd.read_csv(groups)
+        groups['Entry ID'] = groups['Entry ID'].apply(lambda x: x.lower())
+        # group_pdbs = groups["Entry ID"].str.lower().tolist()
+        # check if entries are in annotations
+        extra_entry = groups[~groups["Entry ID"].isin(pdb_names)]["Entry ID"].tolist()
+        print("Some pdbs in the inputed dataframe are not in the directory: ", extra_entry)
+        groups = groups[groups["Entry ID"].isin(pdb_names)]
+        extra_pdbs = [pdb for pdb in pdb_names if not pdb in groups['Entry ID'].values]
+        print("WARNING these pdbs were found in the directory but not in the inputted dataframe: ", extra_pdbs)
+        for subensemble in groups[group_by].unique():
+            sub_group = groups[groups[group_by] == subensemble][
+                "Entry ID"].tolist()
             print(subensemble, sub_group)
-            if split_chains:
-                length = 5
-            else:
-                length = 4
-            cmd.group(subensemble, " ".join([name for name in cmd.get_names() if name[:4] in sub_group and len(name) == length]))
+            # if split_chains:
+            #     length = 5
+            # else:
+            #     length = 4
+            cmd.group(subensemble, " ".join([name for name in cmd.get_names() if name.lower() in sub_group]))
 
-cmd.extend("load_all", load_ensemble)
+pymolcmd.extend("load_all", load_ensemble)

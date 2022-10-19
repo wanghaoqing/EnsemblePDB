@@ -15,6 +15,7 @@ import numpy as np
 from biopandas.pdb import PandasPdb
 from tqdm import tqdm
 from shutil import copyfile
+from glob import glob
 
 from EnsemblePDB.utils import file_management, biopandas_utils
 
@@ -45,7 +46,7 @@ def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
                       'TYR': [['CD1', 'CD2'], ['CE1', 'CE2']],
                       'VAL': [['CG1', 'CG2']]}
     # overwrite in current directory if output not specified
-    all_files = os.listdir(directory)
+    all_files = [x.split('/')[-1] for x in glob(directory+'/*.pdb')]
     if not output_dir:
         output_dir = file_management.get_dir(directory+'_renamed')
     if not reference_pdb:
@@ -54,7 +55,6 @@ def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
     else:
         reference_pdb = reference_pdb[:4].lower()+reference_pdb[4:]
         ref_file = path.join(directory, f"{reference_pdb}.pdb")
-    # print(all_files, reference_pdb)
     all_files.remove(f"{reference_pdb}.pdb")
     copyfile(ref_file, path.join(output_dir, f"{reference_pdb}.pdb"))
 

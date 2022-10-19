@@ -117,9 +117,12 @@ def get_all_chain_alignments_for_table_multi(seq_id, input_table, reference_seqs
         else:
             all_chains = all_chains.combine(output[f"Align ref {chain}: order of chains"], func=get_union)
 
-    # Add column for chains that are not aligned to any refernce
-    output["Align: Non-aligned chains"] = never_aligned
-    output['Chain IDs'] = all_chains
+    # # Add column for chains that are not aligned to any refernce
+    # output["Align: Non-aligned chains"] = never_aligned
+    # output['Chain IDs'] = all_chains
+    # fix (10/18/2022): unknown issue pd.Series not able to assign to df column
+    output["Align: Non-aligned chains"] = never_aligned.tolist()
+    output['Chain IDs'] = all_chains.tolist()
     return output
 
 

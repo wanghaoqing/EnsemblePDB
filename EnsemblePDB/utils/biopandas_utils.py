@@ -127,7 +127,10 @@ def get_xyz(PDB_df):
     for index, row in tqdm(PDB_df.iterrows(), total=len(PDB_df),
                            desc='Getting atom coordinates'):
         Entry_ID = row['Entry ID']
-        atom_coord = row['PandasPDB'].df['ATOM']
+        aa_atom_coord = row['PandasPDB'].df['ATOM']
+        hetatm = row['PandasPDB'].df['HETATM']
+        nonsolvent_hetatm = hetatm.loc[hetatm['residue_name']!='HOH']
+        atom_coord = pd.concat([aa_atom_coord, nonsolvent_hetatm])
         atom_coord = atom_coord[['atom_number', 'atom_name', 'residue_name',
                                  "chain_id", 'residue_number', 'insertion',
                                  'x_coord', 'y_coord', 'z_coord', 'occupancy',

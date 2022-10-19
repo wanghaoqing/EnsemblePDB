@@ -14,7 +14,7 @@ import json
 import pandas as pd
 from EnsemblePDB.utils.table_utils import delete_all_one_value
 
-def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=10):
+def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=0.1):
     '''
     Takes in a sequence and a threshold for sequence identity and return a
     table with sequences that reach the threshold with their pdb_id, chaiin
@@ -28,18 +28,42 @@ def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=10):
             sequence and the chain(s) that matches
     '''
 
-    search_operator = pypdb.clients.search.operators.sequence_operators.SequenceOperator(sequence=sequence, evalue_cutoff=evalue, identity_cutoff=seq_id)
-    results = pypdb.search_client.perform_search_with_graph(
-        query_object=search_operator, return_type=pypdb.search_client.ReturnType.POLYMER_ENTITY, return_raw_json_dict=True)
-
+    # search_operator = pypdb.clients.search.operators.sequence_operators.SequenceOperator(sequence=sequence, evalue_cutoff=evalue, identity_cutoff=seq_id)
+    # results = pypdb.search_client.perform_search_with_graph(
+    #     query_object=search_operator, return_type=pypdb.search_client.ReturnType.POLYMER_ENTITY, return_raw_json_dict=True)
+    q = pypdb.Query(sequence, \
+        query_type="sequence",\
+        return_type="polymer_entity",\
+        scan_params={
+                    "query": 
+                        {
+                        "type": "terminal",
+                        "service": "sequence",
+                        "parameters": 
+                            {
+                            "evalue_cutoff": evalue,
+                            "identity_cutoff": seq_id,
+                            "sequence_type": "protein",
+                            'target': 'pdb_protein_sequence',
+                            "value":sequence
+                            }
+                        },
+                    "request_options": 
+                        {
+                        "scoring_strategy": "sequence",
+                        "return_all_hits": True,
+                        "results_verbosity": "verbose"
+                        },
+                     "return_type": "polymer_entity"
+                     })
+    results = q.search()
     cols = ['Entry ID', 'sequence_identity', 'evalue', 'bitscore', 'alignment_length', 'mismatches', 'gaps_opened',
-            'query_beg', 'query_end', 'subject_beg', 'subject_end', 'query_length', 'subject_length', 'query_aligned_seq', 'subject_aligned_seq']
+            'query_beg', 'query_end', 'subjnect_beg', 'subject_end', 'query_length', 'subject_length', 'query_aligned_seq', 'subject_aligned_seq']
     data = pd.DataFrame(columns=cols)
     for hit in results['result_set']:
         match = hit['services'][0]["nodes"][0]["match_context"][0]
         match["Entry ID"] = hit['identifier'][:4]
         data = data.append(match, ignore_index=True)
-
     # Write out search results
     f = open(search_output_file, "w")
     f.write(str(results))

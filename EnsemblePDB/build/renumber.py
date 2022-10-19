@@ -227,7 +227,7 @@ def _rename_chains(row, reference_chains, directory, new_directory, combine_chai
     Combine chains of a PDB structure given a summary report dataframe with "Check ref {}: suggest combine chains to groups"
     Saves new PDB to a new directory
     '''
-    pdb_file = path.join(directory, f"{row['Entry ID'].lower()}.pdb")
+    pdb_file = path.join(directory, f"{row['Entry ID']}.pdb")
     pdb_struct = PandasPdb().read_pdb(pdb_file)
     chain_old_to_new = {}
     i = 65  # protein start from A
@@ -274,16 +274,16 @@ def _rename_chains(row, reference_chains, directory, new_directory, combine_chai
             chain_old_to_new[non_aligned_chain] = new_ligand_chain
 
     pdb_struct.df['ATOM']['chain_id'] = pdb_struct.df['ATOM']['chain_id'].map(
-        chain_old_to_new).fillna("Z")
+        chain_old_to_new).fillna("NAN")
     pdb_struct.df['HETATM']['chain_id'] = pdb_struct.df['HETATM']['chain_id'].map(
-        chain_old_to_new).fillna("Z")
+        chain_old_to_new).fillna("NAN")
     pdb_struct.df['ANISOU']['chain_id'] = pdb_struct.df['ANISOU']['chain_id'].map(
-        chain_old_to_new).fillna("Z")
+        chain_old_to_new).fillna("NAN")
     # TER records, delete combined chain TER lines and change others
     # if not no_combinations_suggested:
     pdb_struct = _change_TER_record(pdb_struct, chain_old_to_new)
 
-    renamed_pdb = path.join(new_directory, row['Entry ID'].lower()+'.pdb')
+    renamed_pdb = path.join(new_directory, row['Entry ID']+'.pdb')
     pdb_struct.to_pdb(path=renamed_pdb, gz=False)
 
     return chain_old_to_new
@@ -299,7 +299,7 @@ def _get_new_aligned_chains(data, reference_pdb, new_ref_chains, table_reference
         reference_seqs = sequences
         new_ref_chains = table_references
     else:
-        ref_file = path.join(renumbered_directory, f"{reference_pdb.lower()}.pdb")
+        ref_file = path.join(renumbered_directory, f"{reference_pdb}.pdb")
         ref_struct = PandasPdb().read_pdb(ref_file)
         # get the new reference_chains
         for ref_chain in new_ref_chains:
@@ -314,7 +314,7 @@ def _get_new_aligned_chains(data, reference_pdb, new_ref_chains, table_reference
             chains_aligned = []
             ref_alignment = []
             seq_alignment = []
-            pdb_file = path.join(renumbered_directory, f"{row['Entry ID'].lower()}.pdb")
+            pdb_file = path.join(renumbered_directory, f"{row['Entry ID']}.pdb")
             pdb_struct = PandasPdb().read_pdb(pdb_file)
             for chain in pdb_struct.df['ATOM']['chain_id'].unique():
                 seq = get_chain_seq(
@@ -353,7 +353,7 @@ def _get_reference_positions(renumbered_directory, reference_chains, reference_p
         all_ref_positions.append(ref_positions)
 
     else:
-        ref_file = path.join(renumbered_directory, f"{reference_pdb.lower()}.pdb")
+        ref_file = path.join(renumbered_directory, f"{reference_pdb}.pdb")
         ref_struct_atoms = PandasPdb().read_pdb(ref_file).df['ATOM']
         for ref_chain in reference_chains:
             ref_positions = {}
@@ -375,7 +375,7 @@ def _renumber_residues(row, reference_chains, renumbered_directory, all_ref_posi
     Then, renumber all residues based on this map.
     Saves pdb and overwrites files already in renumbered directory
     '''
-    pdb_file = path.join(renumbered_directory, f"{row['Entry ID'].lower()}.pdb")
+    pdb_file = path.join(renumbered_directory, f"{row['Entry ID']}.pdb")
     pdb_struct = PandasPdb().read_pdb(pdb_file)
 
     mutations = []
@@ -459,7 +459,7 @@ def _save_multimers(row, reference_chains, renumbered_directory):
     '''
     If multiple chains aligned to ref sequence/chain, save this PDB multiple times, each with a different aligned chain named to 'A'.
     '''
-    pdb_file = path.join(renumbered_directory, row['Entry ID'].lower()+'.pdb')
+    pdb_file = path.join(renumbered_directory, row['Entry ID']+'.pdb')
     for ref_chain in reference_chains:
         protein_chains = row[f'Renamed: Align ref {ref_chain}: chains aligned']
         for chain in protein_chains[1:]:
@@ -473,5 +473,5 @@ def _save_multimers(row, reference_chains, renumbered_directory):
                 pdb_copy.df['HETATM']['chain_id'] = pdb_copy.df['HETATM'].apply(
                 lambda x: _swap_chains(x, target=chain), axis=1)
             copy_fname = path.join(renumbered_directory,
-                                   row['Entry ID'].lower()+'_'+chain+'.pdb')
+                                   row['Entry ID']+'_'+chain+'.pdb')
             pdb_copy.to_pdb(path=copy_fname, gz=False)
