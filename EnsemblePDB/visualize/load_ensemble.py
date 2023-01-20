@@ -23,7 +23,7 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, groups=None, g
                                not contain any pdbs you do not wish to analyse.
             Entry_IDs (list): list of entry ids to load
             reference_pdb (str): pdb id of reference to be loaded first
-            groups = df with at least 2 columns, Entity ID and Subensemble
+            groups: dataframe with at least 2 columns, "Entry ID" and input group_by
     '''
     # Checking inputs
     assert (path.isdir(directory)), directory + " is not a folder."
@@ -36,13 +36,13 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, groups=None, g
     # print("Using all files, *.pdb, in ", directory)
 
     # load reference pdb and then load and align other pdbs
-    if not Entry_IDs:
+    if Entry_IDs is None:
         print("Using all files, *.pdb, in ", directory)
         files = list(Path(directory).glob("*.pdb"))
     else:
         print("Using all files in the given Entry ID list")
-        Entry_IDs = [x.lower() for x in Entry_IDs]
-        files = [x for x in list(Path(directory).glob("*.pdb")) if x[:4].lower() in Entry_IDs]
+        Entry_IDs = [x.upper() for x in Entry_IDs]
+        files = [x for x in list(Path(directory).glob("*.pdb")) if str(x).split('/')[-1].split('.')[0].upper() in Entry_IDs]
     assert (files != []), "No pdbs in " + directory
 
 
@@ -60,6 +60,7 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, groups=None, g
         #         [name for name in cmd.get_names() if name[:4] == reference_pdb]))
         files.remove(ref_file)
     for file in files:
+        # print(file)
         cmd.load(str(file))
         # pdb = file.stem  
         # if split_chains:
@@ -68,16 +69,18 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, groups=None, g
         #         pdb + "_", " ".join([name for name in cmd.get_names() if name[:4] == pdb]))
 
     if groups is not None:
-        pdb_names = [file.stem.lower() for file in files]
+        pdb_names = [file.stem.upper() for file in files]
         # groups = pd.read_csv(groups)
-        groups['Entry ID'] = groups['Entry ID'].apply(lambda x: x.lower())
+        groups['Entry ID'] = groups['Entry ID'].apply(lambda x: x.upper())
         # group_pdbs = groups["Entry ID"].str.lower().tolist()
         # check if entries are in annotations
-        extra_entry = groups[~groups["Entry ID"].isin(pdb_names)]["Entry ID"].tolist()
-        print("Some pdbs in the inputed dataframe are not in the directory: ", extra_entry)
+        if Entry_IDs is None:
+            extra_entry = groups[~groups["Entry ID"].isin(pdb_names)]["Entry ID"].tolist()
+            print("Some pdbs in the inputed dataframe are not in the directory: ", extra_entry)
         groups = groups[groups["Entry ID"].isin(pdb_names)]
         extra_pdbs = [pdb for pdb in pdb_names if not pdb in groups['Entry ID'].values]
-        print("WARNING these pdbs were found in the directory but not in the inputted dataframe: ", extra_pdbs)
+        if len(extra_pdbs) > 0:
+            print("WARNING these pdbs were found in the directory but not in the inputted dataframe: ", extra_pdbs)
         for subensemble in groups[group_by].unique():
             sub_group = groups[groups[group_by] == subensemble][
                 "Entry ID"].tolist()
@@ -86,6 +89,6 @@ def load_ensemble(directory, Entry_IDs = None,reference_pdb=None, groups=None, g
             #     length = 5
             # else:
             #     length = 4
-            cmd.group(subensemble, " ".join([name for name in cmd.get_names() if name.lower() in sub_group]))
+            cmd.group(subensemble, " ".join([name for name in cmd.get_names() if name.upper() in sub_group]))
 
 pymolcmd.extend("load_all", load_ensemble)

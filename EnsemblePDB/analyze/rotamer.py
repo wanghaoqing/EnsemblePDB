@@ -214,20 +214,23 @@ def calcpsi(chain,res_id):
     psi = Bio.PDB.vectors.calc_dihedral(N,CA,C,N1)
     return psi * 180/math.pi
 
-def calcchi1(chain, res_id):
-    try:
-        N = Bio.PDB.vectors.Vector(chain[res_id]['N'].coord)
-        CA = Bio.PDB.vectors.Vector(chain[res_id]['CA'].coord)
-        CB = Bio.PDB.vectors.Vector(chain[res_id]['CB'].coord)
-    except KeyError:
-        return np.nan
-    XG = 'init'
-    for atom in chain[res_id]:
-        if len(atom.name) > 1 and atom.name[1] == 'G':
-            XG = Bio.PDB.vectors.Vector(chain[res_id][atom.name].coord)
-    if XG == 'init':
-        return np.nan
-    chi1 = Bio.PDB.vectors.calc_dihedral(N,CA,CB,XG)
+def calcchi1(chain, res_id,chi1s = CHI1):
+    atoms = CHI1[chain[res_id].resname]
+    atom_coords = []
+    for a in atoms:
+        try:
+            a_coord = Bio.PDB.vectors.Vector(chain[res_id][a].coord)
+        except KeyError:
+            return np.nan
+        atom_coords.append(a_coord)
+    chi1 = Bio.PDB.vectors.calc_dihedral(*atom_coords)
+    # XG = 'init'
+    # for atom in chain[res_id]:
+    #     if len(atom.name) > 1 and atom.name[1] == 'G':
+    #         XG = Bio.PDB.vectors.Vector(chain[res_id][atom.name].coord)
+    # if XG == 'init':
+    #     return np.nan
+    # chi1 = Bio.PDB.vectors.calc_dihedral(N,CA,CB,XG)
     return chi1 * 180/math.pi
 
 def calcdihedral(a1,a2,a3,a4):
