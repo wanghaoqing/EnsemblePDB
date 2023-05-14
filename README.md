@@ -1,5 +1,5 @@
 # EnsemblePDB
-A package to create, visualize, and analysis PDB-derived pseudo-ensembles.
+A package to create, visualize, and analyze  PDB-derived pseudo-ensembles.
 
 Install 
 `python setup.py install`
