@@ -36,7 +36,7 @@ def specific_pairwise2_align(seqA, seqB, pw_align_opts):
             "gap_extend_score_seq"). Finally you can define your own
             arbitary functions ("score_gap_func_ref","score_gap_func_seq")
     Returns:
-        Alignment objects???
+        Alignment objects
     '''
     # Check all inputrs
     assert (pw_align_opts['alignment_type'] in ["local", "global"]

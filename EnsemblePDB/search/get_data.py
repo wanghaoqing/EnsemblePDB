@@ -25,15 +25,16 @@ COMMNETS:
     Entity data failed to retrieve for any PDB??
 """
 from pathlib import Path
-from pdb import Pdb
+# from pdb import Pdb
 import requests
 import json
-from os import system
+import os
 from tqdm import tqdm
 
 import pandas as pd
-from Bio import AlignIO
-import numpy as np
+# from Bio import AlignIO
+# import numpy as np
+from glob import glob
 
 from EnsemblePDB.utils import file_management,table_utils
 
@@ -170,7 +171,8 @@ def get_pdb_data(ensemble_csv,desired_cols=minimum_info,label='MyProtein', info_
         else:
             print("ERROR: your info_list contains an invalid option.")
             return
-
+    if not output_dir:
+        output_dir = str(file_management.get_nonexistant_file(str(Path(ensemble_csv).parents[0])))
     # get pdb_id list
     pdb_ids = data['Entry ID'].values.tolist()
     all_info = {}
@@ -222,17 +224,15 @@ def get_pdb_data(ensemble_csv,desired_cols=minimum_info,label='MyProtein', info_
                         drugbank_info = get_drugbank_chemcomp_data(chem,desired_cols,cols_to_group)
                         info = combine_dict_info(info,drugbank_info,old_info)
 
-        # TODO mem issues if they want lots of data    
-        # write to file??? need more memory goodness....
         all_info[pdb] = info
         if (i!= 0 and i%batches == 0) or (i == len(pdb_ids)-1):
             df = pd.DataFrame.from_dict(all_info,orient='index')
             df['Entry ID'] = df.index
             df = data.loc[data['Entry ID'].isin(df.index)].merge(df, how="outer", on="Entry ID")
-            if not output_dir:
-                output_file = file_management.get_nonexistant_file(str(Path(ensemble_csv).parents[0])+'/summary_report_'+label+'_'+str(i)+'.csv')
-            else:
-                output_file = output_dir +'/summary_report_'+label+'_'+str(i)+'.csv'
+            # if not output_dir:
+            #     output_file = file_management.get_nonexistant_file(str(Path(ensemble_csv).parents[0])+'/summary_report_'+label+'_'+str(i)+'.csv')
+            # else:
+            output_file = output_dir +'/summary_report_'+label+'_'+str(i)+'.csv'
             # print(f"\nSaving summary table {output_file}. Continue to filter.")
             # missing_cols = [col for col in desired_cols if col not in df.columns]
             # if len(missing_cols) > 0:
@@ -241,7 +241,15 @@ def get_pdb_data(ensemble_csv,desired_cols=minimum_info,label='MyProtein', info_
             df = df.rename(columns=desired_cols)
             df.to_csv(output_file, index=False)
             all_info = {}
-    return df
+    all_data = glob(output_dir +'/summary_report_'+label+'_'+'*.csv')
+    # if len(all_data) > 1:
+    to_concat = []
+    for data in all_data:
+        to_concat.append(pd.read_csv(data))
+        os.remove(data)
+    all_data_df = pd.concat(to_concat)
+    all_data_df.to_csv(output_dir +'/summary_report_'+label+'.csv')
+    return all_data_df
 
 # https://data.rcsb.org/redoc/index.html
 # https://data.rcsb.org/data-attributes.html

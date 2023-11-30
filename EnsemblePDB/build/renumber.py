@@ -99,7 +99,8 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     tqdm.pandas(desc="Renaming chains")
     # Remove pdbs in summary csv but not downloaded
     to_drop = match_names(pdb_dir = directory, summary_df=data)
-    data = data.drop(to_drop, axis=1)
+    # if to_drop in data['Entry ID'].unique().tolist():
+    data = data.loc[~data['Entry ID'].isin(to_drop)]
     # data = data.drop(data[data['Entry ID'].apply(lambda y: y.lower() not in [x[:4].lower() for x in listdir(directory)])].index, axis=0)
     # else:
     #     data['Entry ID'] = data['Entry ID'].apply(lambda y: y.lower())
@@ -319,8 +320,11 @@ def _get_new_aligned_chains(data, reference_pdb, new_ref_chains, table_reference
             for chain in pdb_struct.df['ATOM']['chain_id'].unique():
                 seq = get_chain_seq(
                     pdb_struct, chain=chain, remove_his_tag=False)
-                alignment = specific_pairwise2_align(ref_seq, seq, {
-                                                                        'alignment_type': "global", 'gap_open_score': -0.5, 'gap_extend_score': -0.1})[0]
+                alignment = specific_pairwise2_align(ref_seq, seq, 
+                                                     {'alignment_type': "global", 'gap_open_score': -0.5, 'gap_extend_score': -0.1})
+                if len(alignment) > 1:
+                    alignment = alignment[0]
+                else: continue
                 max_previous_score = max([float(x) for x in get_list_from_table_entry(row[f'Align ref {table_references[i]}: pairwise align score']) if x != ''])
                 # heuristics, if similar to previous alignment score then should be aligned. arbitrary allowance given 10% of sequence length
                 if alignment.score >= (max_previous_score-0.1*len(seq)):

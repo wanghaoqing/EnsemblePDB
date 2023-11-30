@@ -41,6 +41,8 @@ def get_energy_from_stats(potential, measured, default_maximum=True, set_maximum
     Returns
         energy value (kcal/mol). 
     '''
+    if np.isnan(measured):
+        return np.nan
     dfE = potential.loc[(potential['bin min'] < measured) & (potential['bin max'] >= measured)]
     if len(dfE) == 0:
         if default_maximum:
