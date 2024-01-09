@@ -129,7 +129,7 @@ def get_xyz(PDB_df):
         Entry_ID = row['Entry ID']
         aa_atom_coord = row['PandasPDB'].df['ATOM']
         hetatm = row['PandasPDB'].df['HETATM']
-        nonsolvent_hetatm = hetatm.loc[hetatm['residue_name']!='HOH']
+        nonsolvent_hetatm = hetatm.loc[hetatm['residue_name'] != 'HOH']
         atom_coord = pd.concat([aa_atom_coord, nonsolvent_hetatm])
         atom_coord = atom_coord[['atom_number', 'atom_name', 'residue_name',
                                  "chain_id", 'residue_number', 'insertion',

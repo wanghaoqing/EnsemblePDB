@@ -1,6 +1,6 @@
 """ EnsemblePDB.search.query_pdb
 
-TODO DESCRIPTION
+Query PDB to get list of relevent PDB entries.
 
 Authors:
     Rachael Kretsch (rkretsch@stanford.edu), 
@@ -104,7 +104,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
                                 query_type='ExpTypeQuery').search()
         if not xray_pdbs:
             print("No PDB structures found.")
-            return 
+            return
         # assert (xray_pdbs is not None), "PDB search failed, try again."
 
     # if macrmolecule_name specified get list of pdbs with macromolecular name
@@ -116,7 +116,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
         name_pdbs = pypdb.perform_search(search_operator, return_type)
         if not name_pdbs:
             print("No PDB structures found.")
-            return 
+            return
         # assert (name_pdbs is not None), "PDB macromolecule search failed, try again"
 
         # only keep structures that are x-ray structures
@@ -151,7 +151,8 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     for i, seq in enumerate(sequences):
         search_sum_file = get_nonexistant_file(Path(output_dir, f'sequence_search_summary_{reference_chains[i]}.txt'))
         print(f"Saving sequence search raw output in {search_sum_file}.")
-        temp_list = search_seq(seq, seq_id, f"{search_sum_file}", reference_chains[i], evalue=evalue)
+        temp_list = search_seq(seq, seq_id, f"{search_sum_file}",
+                               reference_chains[i], evalue=evalue)
 
         if seq_chain_list is None:
             seq_chain_list = temp_list
@@ -171,8 +172,9 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
     # get all chains and there alignments
     print("Adding all chain alignment information. For large datasets this may"
           " take some time.")
-    output = get_all_chain_alignments_for_table_multi(seq_id,
-                                                       output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
+    output = get_all_chain_alignments_for_table_multi(seq_id, output, sequences,
+                                                      reference_chains, pairwise_align_options,
+                                                      output_dir, min_length)
     output = output.applymap(delete_all_one_value)
 
     # save and return output
@@ -188,8 +190,9 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
 def query_by_sequence(sequences,
                       macromolecule_name=None,  label='MyProtein', seq_id=0.95,
                       xray_only=True, evalue=10,
-                      pairwise_align_options={
-                          'alignment_type': "local", 'gap_open_score': -0.5, 'gap_extend_score': -0.1},
+                      pairwise_align_options={'alignment_type': "local",
+                                              'gap_open_score': -0.5,
+                                              'gap_extend_score': -0.1},
                       output_dir=".", min_length=20):
     '''
     Will take sequence(s) or reference pdb chain(s) and will search 
@@ -252,16 +255,13 @@ def query_by_sequence(sequences,
     # get list of all x-ray structures
     if not xray_only:
         # print("WARNING: obtaining all structures, including structures from "
-            #   "methods other than X-ray crystallography.")
+        #   "methods other than X-ray crystallography.")
         xray_pdbs = []
     else:
         # print("Looking for X-ray crystallographic structures.")
         xray_pdbs = pypdb.Query('X-RAY DIFFRACTION',
                                 query_type='ExpTypeQuery').search()
-        # assert (xray_pdbs is not None), "PDB search failed, try again."
-        if not xray_pdbs:
-            # print("No PDB structures found.")
-            return 
+        assert (xray_pdbs is not None), "PDB search failed, try again."
 
     # if macrmolecule_name specified get list of pdbs with macromolecular name
     if macromolecule_name is not None:
@@ -273,7 +273,7 @@ def query_by_sequence(sequences,
         # assert (name_pdbs is not None), "PDB macromolecule search failed, try again"
         if not name_pdbs:
             print("No PDB structures found.")
-            return 
+            return
         # only keep structures that are x-ray structures
         if xray_only:
             pdb_list = [pdb for pdb in xray_pdbs if pdb in name_pdbs]
@@ -324,8 +324,9 @@ def query_by_sequence(sequences,
     # get all chains and there alignments
     print("Adding all chain alignment information. For large datasets this may"
           " take some time.")
-    output = get_all_chain_alignments_for_table_multi(seq_id,
-                                                       output, sequences, reference_chains, pairwise_align_options, output_dir, min_length)
+    output = get_all_chain_alignments_for_table_multi(seq_id, output, sequences,
+                                                      reference_chains, pairwise_align_options,
+                                                      output_dir, min_length)
     output = output.applymap(delete_all_one_value)
 
     # save and return output

@@ -1,6 +1,6 @@
 """ EnsemblePDB.utils.search_utils
 
-TODO DESCRIPTION
+Utility function for PDB searches.
 
 Authors:
     Rachael Kretsch (rkretsch@stanford.edu), 
@@ -13,6 +13,7 @@ import requests
 import json
 import pandas as pd
 from EnsemblePDB.utils.table_utils import delete_all_one_value
+
 
 def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=0.1):
     '''
@@ -31,31 +32,31 @@ def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=0.1):
     # search_operator = pypdb.clients.search.operators.sequence_operators.SequenceOperator(sequence=sequence, evalue_cutoff=evalue, identity_cutoff=seq_id)
     # results = pypdb.search_client.perform_search_with_graph(
     #     query_object=search_operator, return_type=pypdb.search_client.ReturnType.POLYMER_ENTITY, return_raw_json_dict=True)
-    q = pypdb.Query(sequence, \
-        query_type="sequence",\
-        return_type="polymer_entity",\
-        scan_params={
-                    "query": 
+    q = pypdb.Query(sequence,
+                    query_type="sequence",
+                    return_type="polymer_entity",
+                    scan_params={
+                        "query":
                         {
-                        "type": "terminal",
-                        "service": "sequence",
-                        "parameters": 
+                            "type": "terminal",
+                            "service": "sequence",
+                            "parameters":
                             {
-                            "evalue_cutoff": evalue,
-                            "identity_cutoff": seq_id,
-                            "sequence_type": "protein",
-                            'target': 'pdb_protein_sequence',
-                            "value":sequence
+                                "evalue_cutoff": evalue,
+                                "identity_cutoff": seq_id,
+                                "sequence_type": "protein",
+                                'target': 'pdb_protein_sequence',
+                                "value": sequence
                             }
                         },
-                    "request_options": 
+                        "request_options":
                         {
-                        "scoring_strategy": "sequence",
-                        "return_all_hits": True,
-                        "results_verbosity": "verbose"
+                            "scoring_strategy": "sequence",
+                            "return_all_hits": True,
+                            "results_verbosity": "verbose"
                         },
-                     "return_type": "polymer_entity"
-                     })
+                        "return_type": "polymer_entity"
+                    })
     results = q.search()
     cols = ['Entry ID', 'sequence_identity', 'evalue', 'bitscore', 'alignment_length', 'mismatches', 'gaps_opened',
             'query_beg', 'query_end', 'subjnect_beg', 'subject_end', 'query_length', 'subject_length', 'query_aligned_seq', 'subject_aligned_seq']

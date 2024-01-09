@@ -1,7 +1,10 @@
 '''EnsemblePDB.refine.check_chains
 
-Functions to check whether the aligned chains needs to be combined, if there are multiple chains in a PDB entry that aligned to each reference sequences or chains. 
-For example, some proteases have the sequence split to multiple chains in author annotated PDBs, but for alignment we need to make all chain lengths consistent.
+Functions to check whether the aligned chains needs to be combined, if there 
+are multiple chains in a PDB entry that aligned to each reference sequences or 
+chains. For example, some proteases have the sequence split to multiple chains 
+in author annotated PDBs, but for alignment we need to make all chain lengths 
+consistent.
 
 Authors:
     Rachael Kretsch(rkretsch@stanford.edu), 
@@ -17,16 +20,21 @@ from EnsemblePDB.utils import file_management, table_utils, sequence_alignment
 
 def check_multimer_chains(ensemble_csv, allowance=10, output_directory=None):
     '''
-    Given a summary report (filtered), suggests chains to group and combine for each reference sequence.
-    Assumes that only the chains in order (as indicated by the PDB authors) can be combined to groups.
+    Given a summary report (filtered), suggests chains to group and combine 
+    for each reference sequence. Assumes that only the chains in order 
+    (as indicated by the PDB authors) can be combined to groups.
     Arguments:
         ensemble_csv = str: path of the summary report csv
-        output_directory = str: path to save output dataframes as csvs {default: None}
+        output_directory = str: path to save output dataframes as csvs 
+            {default: None}
     Outputs:
-        dictionary of dataframes with chain alignment information and suggestions where key is the reference chain name
-        in the dataframes, column "align chain groups" refers to the best group of chains picked from all aligned chains 
-        (highest alignment score to reference chain when combined in sequence),
-        column "suggest chain groups" checks any additional non-aligned chains that can be added to aligned chain groups to get better alignment scores.
+        dictionary of dataframes with chain alignment information and 
+        suggestions where key is the reference chain name in the dataframes, 
+        column "align chain groups" refers to the best group of chains picked 
+        from all aligned chains (highest alignment score to reference chain 
+        when combined in sequence), column "suggest chain groups" checks any 
+        additional non-aligned chains that can be added to aligned chain groups 
+        to get better alignment scores.
     '''
     data = pd.read_csv(ensemble_csv)
     reference_chains = table_utils.get_reference_chains(data)
@@ -42,8 +50,10 @@ def check_multimer_chains(ensemble_csv, allowance=10, output_directory=None):
         ref_seq = table_utils.get_list_from_table_entry(data.loc[0, f"Align ref {chain}: aligned ref sequence"])[0].replace(" ", "").replace("-", "")
         chains_lengths = data.apply(lambda l: make_length_dict(
             l, reference_chains[0]), axis=1).tolist()
-        df = pd.DataFrame({'pdb': pdbs, 'aligned_chains': aligned_chains, 'order_of_chains': order_of_chains,
-                           'aligned_seqs': aligned_seqs, 'expected_length': expected_length, 'ref_seq': ref_seq, 'chains_lengths': chains_lengths})
+        df = pd.DataFrame({'pdb': pdbs, 'aligned_chains': aligned_chains,
+                           'order_of_chains': order_of_chains,
+                           'aligned_seqs': aligned_seqs, 'expected_length': expected_length,
+                           'ref_seq': ref_seq, 'chains_lengths': chains_lengths})
         df['align_matched_positions'] = df.apply(make_positions_dict, axis=1)
         # sanity check for defect data:
         mask1 = df.apply(lambda x: True if len(x['order_of_chains']) == len(
@@ -62,8 +72,10 @@ def check_multimer_chains(ensemble_csv, allowance=10, output_directory=None):
         return
 
     for ref_chain, chain_df in all_seq_align.items():
-        chain_df['aligned_chains'] = chain_df['aligned_chains'].apply(lambda x: [] if x == [""] else x)
-        no_align = chain_df.loc[chain_df['aligned_chains'].apply(lambda x: (len(x) == 0))]
+        chain_df['aligned_chains'] = chain_df['aligned_chains'].apply(
+            lambda x: [] if x == [""] else x)
+        no_align = chain_df.loc[chain_df['aligned_chains'].apply(
+            lambda x: (len(x) == 0))]
         multiple_align = chain_df.loc[chain_df['aligned_chains'].apply(
             lambda x: len(x) > 1)]
         if len(multiple_align) > 0:
@@ -104,12 +116,16 @@ def check_multimer_chains(ensemble_csv, allowance=10, output_directory=None):
 
     return data
 
+
+###############################################################################
 # helper functions
 
 
 def make_positions_dict(row):
     '''
-    Apply on rows of ensemble csv to create a dictionary where key is chain name and value is the positions where the chain aligns to the reference chain/sequence
+    Apply on rows of ensemble csv to create a dictionary where key is chain 
+    name and value is the positions where the chain aligns to the reference 
+    chain/sequence.
     '''
     positions = {}
     for index, seq in enumerate(row['aligned_seqs']):
@@ -133,7 +149,8 @@ def make_positions_dict(row):
 
 def get_align_chain_groups(row, allowance):
     '''
-    Assume only chains in order can be combined, determine whether there are multiple repetitive chains(multimers) and group them into lists.
+    Assume only chains in order can be combined, determine whether there are 
+    multiple repetitive chains(multimers) and group them into lists.
     '''
     groups = []
 
@@ -186,10 +203,12 @@ def get_align_chain_groups(row, allowance):
 
 def get_suggest_chain_groups(row, allowance):
     '''
-    Check if each group in grouped chains match reference sequence length. If not, test combining with a nonaligned chain that is in order.
+    Check if each group in grouped chains match reference sequence length. If 
+    not, test combining with a nonaligned chain that is in order.
     Arguments:
         row (Pandas dataframe rows): row of data from ensemble csv
-        allowance (int): allowed difference in length for reference sequence and aligned sequence to skip checking
+        allowance (int): allowed difference in length for reference sequence 
+        and aligned sequence to skip checking
     '''
     # rough check by seq lengths
     new_groups = []

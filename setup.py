@@ -14,5 +14,3 @@ setup(name='EnsemblePDB',
       packages=find_packages(),
       install_requires=[]
       )
-
-#Need to add pymol required

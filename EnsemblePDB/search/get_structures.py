@@ -1,6 +1,6 @@
 ''' EnsemblePDB.search.get_structure
 
-TODO
+Function to download all pdb files from the PDB database
 
 Authors:
     Rachael Kretsch (rkretsch@stanford.edu), 

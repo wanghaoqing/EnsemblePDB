@@ -18,9 +18,10 @@ from tqdm import tqdm
 from re import match
 
 from EnsemblePDB.utils.sequence_alignment import specific_pairwise2_align
-from EnsemblePDB.utils.file_management import get_dir,get_nonexistant_file
-from EnsemblePDB.utils.biopandas_utils import get_chain_seq,retrieve_pdbs
-from EnsemblePDB.utils.table_utils import get_reference_chains,reformat_dict,get_table_entry_from_list,get_list_from_table_entry,get_nested_lists, match_names
+from EnsemblePDB.utils.file_management import get_dir, get_nonexistant_file
+from EnsemblePDB.utils.biopandas_utils import get_chain_seq, retrieve_pdbs
+from EnsemblePDB.utils.table_utils import get_reference_chains, reformat_dict, get_table_entry_from_list, get_list_from_table_entry, get_nested_lists, match_names
+
 
 def download_and_renumber(summary_report_csv, reference_pdb=None,
                           reference_chains=None,
@@ -75,9 +76,12 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     data = pd.read_csv(summary_report_csv)
     # Check validity of csv format
     assert('Entry ID' in data.columns), "Summary csv does not contain column: Entry ID"
-    assert(any([True if match('Align ref .*: chains aligned', x) else False for x in data.columns])), "Summary csv does not contain column: Align ref *: chains aligned"
-    assert(any([True if match('Align ref .*: order of chains', x) else False for x in data.columns])), "Summary csv does not contain column: Align ref *: order of chains"
-    assert(any([True if match('Align ref .*: pairwise align score', x) else False for x in data.columns])), "Summary csv does not contain column: Align ref *: pairwise align score"
+    assert(any([True if match('Align ref .*: chains aligned', x) else False for x in data.columns])
+           ), "Summary csv does not contain column: Align ref *: chains aligned"
+    assert(any([True if match('Align ref .*: order of chains', x) else False for x in data.columns])
+           ), "Summary csv does not contain column: Align ref *: order of chains"
+    assert(any([True if match('Align ref .*: pairwise align score', x) else False for x in data.columns])
+           ), "Summary csv does not contain column: Align ref *: pairwise align score"
 
     # save data to
     output_directory = str(Path(summary_report_csv).parents[0])
@@ -98,7 +102,7 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     # rename chains
     tqdm.pandas(desc="Renaming chains")
     # Remove pdbs in summary csv but not downloaded
-    to_drop = match_names(pdb_dir = directory, summary_df=data)
+    to_drop = match_names(pdb_dir=directory, summary_df=data)
     # if to_drop in data['Entry ID'].unique().tolist():
     data = data.loc[~data['Entry ID'].isin(to_drop)]
     # data = data.drop(data[data['Entry ID'].apply(lambda y: y.lower() not in [x[:4].lower() for x in listdir(directory)])].index, axis=0)
@@ -107,7 +111,8 @@ def download_and_renumber(summary_report_csv, reference_pdb=None,
     data['Renamed: old to new chain'] = data.progress_apply(lambda row: _rename_chains(
         row, table_references, directory, renumbered_directory, combine_chains_by), axis=1)
     # get new reference chains
-    ref_row = data.loc[(data['Entry ID'] == reference_pdb) | (data['Entry ID'] == reference_pdb.upper()) | (data['Entry ID'] == reference_pdb.lower())].iloc[0]
+    ref_row = data.loc[(data['Entry ID'] == reference_pdb) | (
+        data['Entry ID'] == reference_pdb.upper()) | (data['Entry ID'] == reference_pdb.lower())].iloc[0]
     chain_dict = ref_row['Renamed: old to new chain']
     new_ref_chains = list(set([chain_dict[c] for c in reference_chains]))
     # get list of renamed chains that align to each reference sequence
@@ -228,7 +233,7 @@ def _rename_chains(row, reference_chains, directory, new_directory, combine_chai
     Combine chains of a PDB structure given a summary report dataframe with "Check ref {}: suggest combine chains to groups"
     Saves new PDB to a new directory
     '''
-    pdb_file = path.join(directory, f"{row['Entry ID']}.pdb")
+    pdb_file = path.join(directory, f"{row['Entry ID'].lower()}.pdb")
     pdb_struct = PandasPdb().read_pdb(pdb_file)
     chain_old_to_new = {}
     i = 65  # protein start from A
@@ -320,11 +325,12 @@ def _get_new_aligned_chains(data, reference_pdb, new_ref_chains, table_reference
             for chain in pdb_struct.df['ATOM']['chain_id'].unique():
                 seq = get_chain_seq(
                     pdb_struct, chain=chain, remove_his_tag=False)
-                alignment = specific_pairwise2_align(ref_seq, seq, 
+                alignment = specific_pairwise2_align(ref_seq, seq,
                                                      {'alignment_type': "global", 'gap_open_score': -0.5, 'gap_extend_score': -0.1})
                 if len(alignment) > 1:
                     alignment = alignment[0]
-                else: continue
+                else:
+                    continue
                 max_previous_score = max([float(x) for x in get_list_from_table_entry(row[f'Align ref {table_references[i]}: pairwise align score']) if x != ''])
                 # heuristics, if similar to previous alignment score then should be aligned. arbitrary allowance given 10% of sequence length
                 if alignment.score >= (max_previous_score-0.1*len(seq)):
@@ -475,7 +481,7 @@ def _save_multimers(row, reference_chains, renumbered_directory):
                     lambda x: _swap_chains(x, target=chain), axis=1)
             if len(pdb_copy.df['HETATM']) != 0:
                 pdb_copy.df['HETATM']['chain_id'] = pdb_copy.df['HETATM'].apply(
-                lambda x: _swap_chains(x, target=chain), axis=1)
+                    lambda x: _swap_chains(x, target=chain), axis=1)
             copy_fname = path.join(renumbered_directory,
                                    row['Entry ID']+'_'+chain+'.pdb')
             pdb_copy.to_pdb(path=copy_fname, gz=False)

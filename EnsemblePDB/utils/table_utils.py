@@ -123,6 +123,7 @@ def reformat_dict(d):
         entries.append(str(key) + ' : ' + str(val))
     return ' ~ '.join(entries)
 
+
 def get_dict(reformatted_dict):
     '''
     Get dictionary from reformatted csv entry
@@ -135,10 +136,11 @@ def get_dict(reformatted_dict):
         d[original] = renamed
     return d
 
+
 def reformat_nested_lists(l_of_l):
     '''
     Apply on nested lists to get csv friendly format (str separated by + and ~)
-    
+
     Arguments:
         l_of_l (list of lists of str)
     Returns:
@@ -148,6 +150,7 @@ def reformat_nested_lists(l_of_l):
     for l in l_of_l:
         l_of_c.append(' + '.join(l))
     return ' ~ '.join(l_of_c)
+
 
 def contains_keyword(x, name, col='rscb-polymer-entity: description', index=0):
     '''
@@ -201,6 +204,7 @@ def check_mutations(x, max_muts):
         return True
     else:
         return False
+
 
 def match_names(pdb_dir, summary_df):
     '''

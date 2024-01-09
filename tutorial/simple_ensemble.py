@@ -24,8 +24,8 @@ data = build.renumber.download_and_renumber(summary_report_csv=f'{output_dir}/su
 # align
 align, rmsd = build.alignment.align_all_pymol(directory=f'{output_dir}/Renumbered_unaligned_pdbs', alignment='chain A and name CA', loaded=False,reference_pdb=ref_pdb, cutoff=2.0, cycles=5,gap=-10.0, max_gap=50, extend=-0.5, max_skip=0, matrix='BLOSUM62', align_method="align", name=None,output_directory=None)
 # renumber
-refine.rename.rename_ambiguous(directory=f'{output_dir}/Alignment_on_chain_A_and_name_CA_ref_1acb/Renumbered_aligned_pdbs_chain_A_and_name_CA_ref_1acb')
+refine.rename.rename_ambiguous(directory=f'{output_dir}/Alignment_on_chain_A_and_name_CA_ref_1ACB/Renumbered_aligned_pdbs_chain_A_and_name_CA_ref_1ACB')
 # get MDev
-MDev = analyze.atoms.get_MDev(directory=f'{output_dir}/Alignment_on_chain_A_and_name_CA_ref_1acb/Renumbered_aligned_pdbs_chain_A_and_name_CA_ref_1acb_renamed', chains=['A'], reference_PDB=ref_pdb, multiconformers=False)
+MDev = analyze.atoms.get_MDev(directory=f'{output_dir}/Alignment_on_chain_A_and_name_CA_ref_1ACB/Renumbered_aligned_pdbs_chain_A_and_name_CA_ref_1ACB_renamed', chains=['A'], reference_PDB=ref_pdb, multiconformers=False)
 # get distances
-distances = analyze.atoms.get_distance_distributions(directory=f'{output_dir}/Alignment_on_chain_A_and_name_CA_ref_1acb/Renumbered_aligned_pdbs_chain_A_and_name_CA_ref_1acb_renamed', chains=['A'], multiconformers =False, quantile = 0.95,report_outliers = True, output_directory = None)
+distances = analyze.atoms.get_distance_distributions(directory=f'{output_dir}/Alignment_on_chain_A_and_name_CA_ref_1ACB/Renumbered_aligned_pdbs_chain_A_and_name_CA_ref_1ACB_renamed', chains=['A'], multiconformers =False, quantile = 0.95,report_outliers = True, output_directory = None)

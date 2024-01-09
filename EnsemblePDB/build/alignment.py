@@ -1,6 +1,6 @@
 ''' EnsemblePDB.build.alignment
 
-pymol function
+pymol function to align all pdbs
 
 Authors:
     Rachael Kretsch (rkretsch@stanford.edu), 
@@ -71,7 +71,7 @@ def align_all_pymol(directory, alignment, loaded=False, reference_pdb=None,
     struct_list = [pdb for pdb in struct_list if pdb in pdbs]
 
     if reference_pdb is not None:
-        reference_pdb = reference_pdb[:4].lower()+reference_pdb[4:]
+        reference_pdb = reference_pdb[:4]+reference_pdb[4:]
         struct_list.remove(reference_pdb)
     elif reference_pdb is None and reference_pdb_file is not None:
         reference_pdb = Path(reference_pdb_file).stem

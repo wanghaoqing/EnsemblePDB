@@ -1,7 +1,9 @@
 '''EnsemblePDB.refine.rename
 
 Function to rename ambiguous atoms by reference structure.
-To ensure correct MDev calculation and visualization, we need to rename atoms that are chemically idential and arbitrarily labeled in the PDB files (e.g. OD1 and OD2 of ASP atoms.)
+To ensure correct MDev calculation and visualization, we 
+need to rename atoms that are chemically idential and arbitrarily 
+labeled in the PDB files (e.g. OD1 and OD2 of ASP atoms.)
 
 Authors:
     Rachael Kretsch (rkretsch@stanford.edu)
@@ -22,11 +24,14 @@ from EnsemblePDB.utils import file_management, biopandas_utils
 
 def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
     '''
-    Takes all pdbs in a directory and relabels ambiguous atoms consistently by distance to atoms in the reference structure, saves the renamed PDBs.
+    Takes all pdbs in a directory and relabels ambiguous atoms consistently 
+    by distance to atoms in the reference structure, saves the renamed PDBs.
     Arguments:
         directory (str): directory with PDBs to rename atoms
-        reference_pdb (str): Entry ID of the reference PDB. If None, use the first PDB file in the directory. {default: None}
-        output_dir (str): directory to save renamed PDBs to. If None, saves to the parent of directory with suffix _renamed.
+        reference_pdb (str): Entry ID of the reference PDB. If None, use the 
+            first PDB file in the directory. {default: None}
+        output_dir (str): directory to save renamed PDBs to. If None, saves 
+            to the parent of directory with suffix _renamed.
     Atoms that will be relabeled:
         Arg NH1, NH2
         Asp OD1, OD2
@@ -60,7 +65,8 @@ def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
 
     ref_struct = PandasPdb().read_pdb(ref_file).df['ATOM']
     # TODO: tqdm
-    for fname in tqdm(all_files, total=len(all_files), desc='Renaming ambiguous atoms'):
+    for fname in tqdm(all_files, total=len(all_files),
+                      desc='Renaming ambiguous atoms'):
         # print(f'Relabelling {file}')
         pdb_file = path.join(directory, fname)
         ppdb = PandasPdb().read_pdb(pdb_file)
@@ -100,7 +106,8 @@ def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
                         distances.append(distance)
                 # compare set of distances
                 if distances[0]+distances[3] > distances[1] + distances[2]:
-                    # switch atom name. Notice that multiconformer atoms will be labeled with the same reference atom name.
+                    # switch atom name. Notice that multiconformer atoms
+                    # will be labeled with the same reference atom name.
                     pdb_struct.loc[atom_1.index,
                                    'atom_name'] = ref_atom_2.iloc[0]['atom_name']
                     pdb_struct.loc[atom_2.index,

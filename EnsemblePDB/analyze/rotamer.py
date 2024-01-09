@@ -16,14 +16,16 @@ from glob import glob
 
 from EnsemblePDB.utils.file_management import get_nonexistant_file
 
-def get_all_rotamers(directory, chains,output_directory=None):
+
+def get_all_rotamers(directory, chains, output_directory=None):
     if output_directory is None:
         output_directory = str(Path(directory).parents[0])
     all_rotamers = {}
     for chain in chains:
         rotamer = []
         all_pdbs = glob(directory+'/*.pdb')
-        for pdb in tqdm(all_pdbs, total = len(all_pdbs), desc=f'Calculating rotamer angle for chain {chain}'):
+        for pdb in tqdm(all_pdbs, total=len(all_pdbs),
+                        desc=f'Calculating rotamer angle for chain {chain}'):
             df = get_dihedrals(pdb=pdb, chain_id=chain)
             df['Entry ID'] = pdb.split('/')[-1][:-4]
             rotamer.append(df)
@@ -34,51 +36,54 @@ def get_all_rotamers(directory, chains,output_directory=None):
         print(f'\nRotamer angle distributions saved to {fname}')
     return all_rotamers
 
+
 # definition of chi angles
 CHI1 = {
-    'ARG': ['N','CA','CB', 'CG'],
-    'ASN': ['N','CA','CB', 'CG'],
-    'ASP': ['N','CA','CB', 'CG'],
-    'CYS': ['N','CA','CB', 'SG'],
-    'GLU': ['N','CA','CB', 'CG'],
-    'GLN': ['N','CA','CB', 'CG'],
-    'HIS': ['N','CA','CB', 'CG'],
-    'ILE': ['N','CA','CB', 'CG1'],
-    'LEU': ['N','CA','CB', 'CG'],
-    'LYS': ['N','CA','CB', 'CG'],
-    'MET': ['N','CA','CB', 'CG'],
-    'PHE': ['N','CA','CB', 'CG'],
-    'PRO': ['N','CA','CB', 'CG'],
-    'SER': ['N','CA','CB', 'OG'],
-    'THR': ['N','CA','CB', 'OG1'],
-    'TRP':['N','CA','CB', 'CG'],
-    'TYR': ['N','CA','CB', 'CG'],
-    'VAL': ['N','CA','CB', 'CG1']
+    'ARG': ['N', 'CA', 'CB', 'CG'],
+    'ASN': ['N', 'CA', 'CB', 'CG'],
+    'ASP': ['N', 'CA', 'CB', 'CG'],
+    'CYS': ['N', 'CA', 'CB', 'SG'],
+    'GLU': ['N', 'CA', 'CB', 'CG'],
+    'GLN': ['N', 'CA', 'CB', 'CG'],
+    'HIS': ['N', 'CA', 'CB', 'CG'],
+    'ILE': ['N', 'CA', 'CB', 'CG1'],
+    'LEU': ['N', 'CA', 'CB', 'CG'],
+    'LYS': ['N', 'CA', 'CB', 'CG'],
+    'MET': ['N', 'CA', 'CB', 'CG'],
+    'PHE': ['N', 'CA', 'CB', 'CG'],
+    'PRO': ['N', 'CA', 'CB', 'CG'],
+    'SER': ['N', 'CA', 'CB', 'OG'],
+    'THR': ['N', 'CA', 'CB', 'OG1'],
+    'TRP': ['N', 'CA', 'CB', 'CG'],
+    'TYR': ['N', 'CA', 'CB', 'CG'],
+    'VAL': ['N', 'CA', 'CB', 'CG1']
 }
 CHI2 = {
-    'ARG': ['CA','CB','CG','CD'],
-    'GLU': ['CA','CB','CG','CD'],
-    'GLN': ['CA','CB','CG','CD'],
-    'LYS': ['CA','CB','CG','CD'],
-    'MET': ['CA','CB','CG','SD']
+    'ARG': ['CA', 'CB', 'CG', 'CD'],
+    'GLU': ['CA', 'CB', 'CG', 'CD'],
+    'GLN': ['CA', 'CB', 'CG', 'CD'],
+    'LYS': ['CA', 'CB', 'CG', 'CD'],
+    'MET': ['CA', 'CB', 'CG', 'SD']
     # 'PHE': ['CA','CB','CG','CD1'], #nonrotameric
     # 'TRP': ['CA','CB','CG','CD1'], #nonrotameric
     # 'TYR': ['CA','CB','CG','CD1'] #nonrotameric
-    }
+}
 CHI3 = {
-    'ARG': ['CB','CG','CD','NE'],
-    'LYS': ['CB','CG','CD','CE'],
-    'MET': ['CB','CG','SD','CE'],
+    'ARG': ['CB', 'CG', 'CD', 'NE'],
+    'LYS': ['CB', 'CG', 'CD', 'CE'],
+    'MET': ['CB', 'CG', 'SD', 'CE'],
 }
 CHI4 = {
-    'ARG': ['CG','CD','NE','CZ'],
-    'LYS': ['CG','CD','CE','NZ'],   
+    'ARG': ['CG', 'CD', 'NE', 'CZ'],
+    'LYS': ['CG', 'CD', 'CE', 'NZ'],
 }
+
 
 def get_dihedrals(pdb, chain_id):
     '''
     For a given pdb file and a protein chain, calculate all possible psi,phi and chi angles.
-    Note: for any dihedral calculation, if any of the four atom is disorderd (multiconfomer), this angle will be skipped (np.nan).
+    Note: for any dihedral calculation, if any of the four atom is disorderd (multiconfomer), 
+            this angle will be skipped (np.nan).
     '''
     parser = Bio.PDB.PDBParser(QUIET=True)
     # Entry_ID = pdb.split('/')[-1].split('.')[0]
@@ -97,9 +102,10 @@ def get_dihedrals(pdb, chain_id):
         dihedral_angles['phi'] = calcphi(chain, resid)
         dihedral_angles['psi'] = calcpsi(chain, resid)
         # calculate chi angles
-        for chi in ['chi1', 'chi2','chi3','chi4']:
+        for chi in ['chi1', 'chi2', 'chi3', 'chi4']:
             dihedral_angles[chi] = np.nan
-        for chi_atoms, chi_name in zip([CHI1, CHI2, CHI3, CHI4],['chi1', 'chi2','chi3','chi4']):
+        for chi_atoms, chi_name in zip([CHI1, CHI2, CHI3, CHI4],
+                                       ['chi1', 'chi2', 'chi3', 'chi4']):
             if residue.resname not in chi_atoms.keys():
                 continue
             atoms_to_find = chi_atoms[residue.resname]
@@ -107,7 +113,8 @@ def get_dihedrals(pdb, chain_id):
             # check if atom is in PDB & if they are disordered
             if any(list(map(lambda a: a not in atoms_in_pdb, atoms_to_find))):
                 continue
-            if any(list(map(lambda a: residue[a].is_disordered == 0, atoms_to_find))):
+            if any(list(map(lambda a: residue[a].is_disordered == 0,
+                            atoms_to_find))):
                 continue
             atomobj = [residue[a] for a in atoms_to_find]
             dihedral_angles[chi_name] = calcdihedral(*atomobj)
@@ -134,21 +141,25 @@ def get_dihedrals(pdb, chain_id):
     #     return resid_list[ref_index+position]
     # else:
     #     return
+
+
 def get_residue_by_seqproximity(chain, reference_resid, position):
     '''
     position: +1 or -1 : next residue or previous residue
     '''
-    atoms  = Bio.PDB.Selection.unfold_entities(chain, 'A')
+    atoms = Bio.PDB.Selection.unfold_entities(chain, 'A')
     ns = Bio.PDB.NeighborSearch(atoms)
     curr_res = chain[reference_resid]
     if position == 1:
         if 'C' in [x.name for x in curr_res]:
             target_atom = curr_res['C']
-        else: return
+        else:
+            return
     if position == -1:
         if 'N' in [x.name for x in curr_res]:
             target_atom = curr_res['N']
-        else: return
+        else:
+            return
     cov_atoms = ns.search(target_atom.coord, 2)
     candidates = []
     for a in cov_atoms:
@@ -156,23 +167,26 @@ def get_residue_by_seqproximity(chain, reference_resid, position):
             candidates.append(a)
     neighbor_atom = None
     if len(candidates) == 0:
-        return 
+        return
     elif len(candidates) == 1:
         neighbor_atom = candidates[0]
     else:
-        distances = [np.linalg.norm(x.coord-target_atom.coord) for x in candidates]
+        distances = [np.linalg.norm(x.coord-target_atom.coord)
+                     for x in candidates]
         neighbor_atom = candidates[np.array(distances).argmin()]
     # check atom identity
     if position == 1:
         if neighbor_atom.name != 'N':
-            return 
+            return
     if position == -1:
         if neighbor_atom.name != 'C':
             return
     return neighbor_atom.get_parent().id
 
-def calcphi(chain,res_id):
-    res_id__1 = get_residue_by_seqproximity(chain=chain, reference_resid= res_id, position=-1)
+
+def calcphi(chain, res_id):
+    res_id__1 = get_residue_by_seqproximity(
+        chain=chain, reference_resid=res_id, position=-1)
     if not res_id__1:
         return np.nan
     try:
@@ -182,19 +196,22 @@ def calcphi(chain,res_id):
         C_atom = chain[res_id]['C']
     except KeyError:
         return np.nan
-    #check if disordered
-    if CO_atom.is_disordered() != 0 or N_atom.is_disordered() != 0 or CA_atom.is_disordered() != 0 or C_atom.is_disordered() !=0:
+    # check if disordered
+    if (CO_atom.is_disordered() != 0 or N_atom.is_disordered() != 0 or
+            CA_atom.is_disordered() != 0 or C_atom.is_disordered() != 0):
         # print('DEBUG: disordered atom')
         return np.nan
     C0 = Bio.PDB.vectors.Vector(CO_atom.coord)
     N = Bio.PDB.vectors.Vector(N_atom.coord)
     CA = Bio.PDB.vectors.Vector(CA_atom.coord)
     C = Bio.PDB.vectors.Vector(C_atom.coord)
-    phi = Bio.PDB.vectors.calc_dihedral(C0,N,CA,C)
+    phi = Bio.PDB.vectors.calc_dihedral(C0, N, CA, C)
     return phi * 180/math.pi
 
-def calcpsi(chain,res_id):
-    res_id_1 = get_residue_by_seqproximity(chain=chain, reference_resid=res_id, position=1)
+
+def calcpsi(chain, res_id):
+    res_id_1 = get_residue_by_seqproximity(
+        chain=chain, reference_resid=res_id, position=1)
     if not res_id_1:
         return np.nan
     try:
@@ -204,17 +221,19 @@ def calcpsi(chain,res_id):
         N1_atom = chain[res_id_1]['N']
     except KeyError:
         return np.nan
-    if N_atom.is_disordered() != 0 or CA_atom.is_disordered() != 0 or C_atom.is_disordered() != 0 or N1_atom.is_disordered() !=0 :
+    if (N_atom.is_disordered() != 0 or CA_atom.is_disordered() != 0 or
+            C_atom.is_disordered() != 0 or N1_atom.is_disordered() != 0):
         # print('DEBUG: disordered atom')
         return np.nan
     N = Bio.PDB.vectors.Vector(chain[res_id]['N'].coord)
     CA = Bio.PDB.vectors.Vector(chain[res_id]['CA'].coord)
     C = Bio.PDB.vectors.Vector(chain[res_id]['C'].coord)
     N1 = Bio.PDB.vectors.Vector(chain[res_id_1]['N'].coord)
-    psi = Bio.PDB.vectors.calc_dihedral(N,CA,C,N1)
+    psi = Bio.PDB.vectors.calc_dihedral(N, CA, C, N1)
     return psi * 180/math.pi
 
-def calcchi1(chain, res_id,chi1s = CHI1):
+
+def calcchi1(chain, res_id, chi1s=CHI1):
     atoms = CHI1[chain[res_id].resname]
     atom_coords = []
     for a in atoms:
@@ -233,10 +252,11 @@ def calcchi1(chain, res_id,chi1s = CHI1):
     # chi1 = Bio.PDB.vectors.calc_dihedral(N,CA,CB,XG)
     return chi1 * 180/math.pi
 
-def calcdihedral(a1,a2,a3,a4):
+
+def calcdihedral(a1, a2, a3, a4):
     v1 = Bio.PDB.vectors.Vector(a1.coord)
     v2 = Bio.PDB.vectors.Vector(a2.coord)
     v3 = Bio.PDB.vectors.Vector(a3.coord)
     v4 = Bio.PDB.vectors.Vector(a4.coord)
-    dihedral = Bio.PDB.vectors.calc_dihedral(v1,v2,v3,v4)
+    dihedral = Bio.PDB.vectors.calc_dihedral(v1, v2, v3, v4)
     return dihedral * 180/math.pi

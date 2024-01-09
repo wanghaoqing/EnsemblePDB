@@ -18,7 +18,8 @@ from EnsemblePDB.utils.analysis_utils import *
 
 
 def get_MDev(directory, chains, reference_PDB, multiconformers=False,
-             output_directory=None, bootstrap=True, iter=50, include_mutations = False):
+             output_directory=None, bootstrap=True, iter=50,
+             include_mutations=False):
     '''
     Takes .pdb files and calculates the mean deviation of atom 
     positions for all atoms. Note no alignment is perferformed.
@@ -39,7 +40,8 @@ def get_MDev(directory, chains, reference_PDB, multiconformers=False,
                         complete for large number of atoms {default: True}
         iter (int): number of iteration to resample data for bootstrap analysis 
                         {default: 50}
-        include_mutations (bool): if True, include mutants in MDev calculates; if False, separate residues from mutants {default: False}
+        include_mutations (bool): if True, include mutants in MDev calculates; 
+                    if False, separate residues from mutants {default: False}
 
     Returns:
         DataFrames of MDev values for each atom.
@@ -55,13 +57,14 @@ def get_MDev(directory, chains, reference_PDB, multiconformers=False,
     if output_directory is None:
         output_directory = str(Path(directory).parents[0])
     MDev = combine_save_MDev(atoms, chains, reference_PDB,
-                             output_directory, bootstrap, iter, include_mutations)
+                             output_directory, bootstrap,
+                             iter, include_mutations)
     return MDev
 
 
 def get_distance_distributions(directory, chains, multiconformers=False,
                                quantile=0.95, report_outliers=True,
-                               output_directory=None, include_mutations = False):
+                               output_directory=None, include_mutations=False):
     '''
     Get all coordinates for an atom in the ensemble and calculate the distance 
     of each from the center atom of the ensemble and from the average position.
@@ -80,7 +83,8 @@ def get_distance_distributions(directory, chains, multiconformers=False,
                             {default: True}
         output_directory (str): Directory to save output files to. If None, 
                         saves to the parent of given directory {default: None}
-        include_mutations (bool): if True, include mutants in MDev calculates; if False, separate residues from mutants {default: False}
+        include_mutations (bool): if True, include mutants in MDev calculates; 
+                    if False, separate residues from mutants {default: False}
 
     Returns:
         dataframe with new columns of distance from center atom and average position 
@@ -104,9 +108,10 @@ def get_distance_distributions(directory, chains, multiconformers=False,
         if not include_mutations:
             atoms = atoms.set_index(
                 ['residue_number', 'insertion', 'residue_name',
-                'atom_name']).sort_index()
+                 'atom_name']).sort_index()
         else:
-            atoms = atoms.set_index(['residue_number', 'insertion','atom_name']).sort_index() 
+            atoms = atoms.set_index(
+                ['residue_number', 'insertion', 'atom_name']).sort_index()
         to_concat = []
 
         for i, index in tqdm(enumerate(atoms.index.unique()),
@@ -147,6 +152,7 @@ def get_distance_distributions(directory, chains, multiconformers=False,
 
     return final
 
+
 def calculate_MDev(df, bootstrap, iter, include_mutations):
     '''
     Arguments:
@@ -157,15 +163,16 @@ def calculate_MDev(df, bootstrap, iter, include_mutations):
     '''
     if not include_mutations:
         grouped = df.groupby(['residue_number', 'insertion',
-                            'residue_name', 'atom_name'])
+                              'residue_name', 'atom_name'])
     else:
-        grouped = df.groupby(['residue_number', 'insertion','atom_name'])
+        grouped = df.groupby(['residue_number', 'insertion', 'atom_name'])
     MDev = grouped.progress_apply(lambda x: calculate_rmsd(x))
     size = grouped['Entry ID'].count()
     to_concat = [MDev, size]
     if bootstrap:
         tqdm.pandas(desc=f'Perform bootstrap analysis')
-        boot = grouped.progress_apply(lambda x: bootstrap_analysis(x, iter,apply_func=calculate_rmsd))
+        boot = grouped.progress_apply(
+            lambda x: bootstrap_analysis(x, iter, apply_func=calculate_rmsd))
         to_concat.append(boot)
     MDevs = pd.concat(to_concat, axis=1)
     MDevs = pd.DataFrame(MDevs).reset_index()\
@@ -175,7 +182,8 @@ def calculate_MDev(df, bootstrap, iter, include_mutations):
     return MDevs
 
 
-def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter, include_mutations):
+def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap,
+                      iter, include_mutations):
     '''
     Arguments:
         df, dataframe of atom coords
@@ -194,10 +202,13 @@ def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter, inclu
 
         # get rid of mutants
         if not include_mutations:
-            reference = df_temp.loc[(df_temp['Entry ID'] == reference_PDB) | (df_temp['Entry ID'] == reference_PDB.lower()) | (df_temp['Entry ID'] == reference_PDB.upper())]
+            reference = df_temp.loc[(df_temp['Entry ID'] == reference_PDB) | (
+                df_temp['Entry ID'] == reference_PDB.lower()) |
+                (df_temp['Entry ID'] == reference_PDB.upper())]
             wt_ids = reference.set_index(
                 ['residue_number', 'insertion', 'residue_name']).index
-            MDev = MDev.set_index(['residue_number', 'insertion', 'residue_name'])
+            MDev = MDev.set_index(
+                ['residue_number', 'insertion', 'residue_name'])
             MDev = MDev[MDev.index.isin(wt_ids)].reset_index()
         fname = get_nonexistant_file(
             save_to + '/all_atom_MDev_chain_{}.csv'.format(chain))
@@ -206,6 +217,7 @@ def combine_save_MDev(df, chains, reference_PDB, save_to, bootstrap, iter, inclu
         MDevs[chain] = MDev
 
     return MDevs
+
 
 def get_outliers_report(atoms, output_directory):
     '''

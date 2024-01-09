@@ -56,7 +56,7 @@ def calculate_rmsd(group):
     return rmsd
 
 
-def bootstrap_analysis(group, iter, apply_func = None):
+def bootstrap_analysis(group, iter, apply_func=None):
     '''
     Apply on a group object (one atom) to perform bootstrap analysis 
     and returns a standard deviation from the bootstrap distribution.

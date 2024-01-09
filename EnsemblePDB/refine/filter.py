@@ -12,7 +12,7 @@ import pandas as pd
 from pathlib import Path
 
 from EnsemblePDB.utils.file_management import get_nonexistant_file
-from EnsemblePDB.utils.table_utils import contains_keyword,wrong_organism,check_mutations
+from EnsemblePDB.utils.table_utils import contains_keyword, wrong_organism, check_mutations
 
 
 def filter_pdb_data(summary_report_csv, protein_name='', exclude_terms=None,
@@ -77,7 +77,7 @@ def filter_pdb_data(summary_report_csv, protein_name='', exclude_terms=None,
                                                summary_report["Entity description contains excluded words"])
     if max_res is not None:
         summary_report["Too low resolution"] = summary_report.apply(
-            lambda x: True if x['pdbx: resolution'] > max_res else False, axis=1)
+            lambda x: True if x['rscb-entry: resolution'] > max_res else False, axis=1)
         summary_report["Filtering out"] = (summary_report['Filtering out'] |
                                            summary_report["Too low resolution"])
     if organism is not None:
@@ -92,10 +92,10 @@ def filter_pdb_data(summary_report_csv, protein_name='', exclude_terms=None,
                                            summary_report["Too many mutations"])
 
     all_param = ['Filtering out', 'Correct protein',
-         'Entity description contains excluded words', 'Too low resolution',
-         'Wrong organism', 'Too many mutations']
+                 'Entity description contains excluded words', 'Too low resolution',
+                 'Wrong organism', 'Too many mutations']
     filtered = summary_report.loc[~summary_report['Filtering out']].drop(
-[x for x in all_param if x in summary_report.columns], axis=1)
+        [x for x in all_param if x in summary_report.columns], axis=1)
     if not output_directory:
         parent_dir = str(Path(summary_report_csv).parents[0])
         output_file_full = get_nonexistant_file(
