@@ -15,6 +15,7 @@ from tqdm import tqdm
 from glob import glob
 
 # definition of chi angles
+# list of rotamers and their ranges follow Shapovalov & Dunbrack 2011
 CHI1 = {
     'ARG': [['N','CA','CB', 'CG']],
     'ASN': [['N','CA','CB', 'CG']],
@@ -44,20 +45,21 @@ CHI2 = {
     'MET': [['CA','CB','CG','SD']],
     'PRO': [['CA','CB', 'CG','CD']], 
     'HIS': [['CA','CB', 'CG','ND1']],
-    'LEU': [['CA','CB', 'CG', 'CD1'],['CA','CB', 'CG', 'CD1']],
-    'ILE': [['CA','CB', 'CG1','CD1']], 
-    'ASN': [['CA','CB','CG', 'OD1'],['CA','CB','CG', 'ND2']], #nonrotameric
+    'ILE': [['CA','CB', 'CG1','CD1']],
+    'LEU': [['CA','CB', 'CG', 'CD1'],['CA','CB', 'CG', 'CD2']], 
+    'ASN': [['CA','CB','CG', 'OD1']], #nonrotameric
     'ASP': [['CA','CB','CG', 'OD1'],['CA','CB','CG', 'OD2']],#nonrotameric
-    'GLU': [['CB','CG','CD','OE1'],['CB','CG','CD','NE2']], #nonrotameric
     'PHE': [['CA','CB','CG','CD1'],['CA','CB','CG','CD2']], #nonrotameric
     'TRP': [['CA','CB','CG','CD1'],['CA','CB','CG','CD2']], #nonrotameric
-
+    'TYR': [['CA','CB','CG','CD1'],['CA','CB','CG','CD2']],#nonrotameric
     }
 
 CHI3 = {
     'ARG': [['CB','CG','CD','NE']],
     'LYS': [['CB','CG','CD','CE']],
     'MET': [['CB','CG','SD','CE']],
+    'GLU': [['CB','CG','CD','OE1'],['CB','CG','CD','OE1']], #nonrotameric
+    'GLN': [['CB','CG','CD','OE1']], #nonrotameric
 }
 CHI4 = {
     'ARG': [['CG','CD','NE','CZ']],
@@ -158,6 +160,8 @@ def get_residue_dihedrals(chain, resid):
             atomobj = [residue[x] for x in atoms_to_find]
             altconf_dict = get_altconf_dict(atomobj)
             for key, atoms in altconf_dict.items():
+                if len(atoms) != 4: continue
+                # print(resid, chi, atoms)
                 chi_angle = calcdihedral(*atoms)
                 if key not in dihedral_angles.keys():
                     dihedral_angles[key] = {}
@@ -316,3 +320,45 @@ def calcdihedral(a1, a2, a3, a4):
     v4 = Bio.PDB.vectors.Vector(a4.coord)
     dihedral = Bio.PDB.vectors.calc_dihedral(v1, v2, v3, v4)
     return dihedral * 180/math.pi
+
+
+def normalize_nonrotamer(row):
+    if row['residue_name'] in ['ASN','TRP','HIS']:
+        row['chi2'] = normalize_180(row['chi2'])
+    elif row['residue_name'] == 'ASP':
+        row['chi2'] = normalize_90(row['chi2'])
+    elif row['residue_name'] == 'GLU':
+        row['chi3'] = normalize_90(row['chi3'])
+    elif row['residue_name'] in ['PHE','TYR']:
+        row['chi2'] =  normalize_150(row['chi2'])
+    elif row['residue_name'] == 'GLN':
+        row['chi3'] = normalize_180(row['chi3'])
+    return row
+
+def normalize_90(x):
+    if x>0 and x<=90:
+        return x
+    elif x>90 and x<=270:
+        return x-180
+    elif x>270:
+        return x-360
+    else:
+        return np.nan
+    
+def normalize_150(x):
+    if x>0 and x<=150:
+        return x
+    elif x>150 and x<=330:
+        return x-180
+    elif x>330:
+        return x-360
+    else:
+        return np.nan
+
+def normalize_180(x):
+    if x>0 and x<=180:
+        return x
+    elif x>180:
+        return x-360
+    else:
+        return np.nan
