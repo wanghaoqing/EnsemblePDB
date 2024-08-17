@@ -1,4 +1,4 @@
-# import EnsemblePDB.search
+import EnsemblePDB.search
 import EnsemblePDB.analyze
 import EnsemblePDB.build
 import EnsemblePDB.refine
