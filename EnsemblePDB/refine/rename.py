@@ -26,12 +26,6 @@ def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
     '''
     Takes all pdbs in a directory and relabels ambiguous atoms consistently 
     by distance to atoms in the reference structure, saves the renamed PDBs.
-    Arguments:
-        directory (str): directory with PDBs to rename atoms
-        reference_pdb (str): Entry ID of the reference PDB. If None, use the 
-            first PDB file in the directory. {default: None}
-        output_dir (str): directory to save renamed PDBs to. If None, saves 
-            to the parent of directory with suffix _renamed.
     Atoms that will be relabeled:
         Arg NH1, NH2
         Asp OD1, OD2
@@ -42,6 +36,12 @@ def rename_ambiguous(directory, reference_pdb=None, output_dir=None):
         Tyr CD1, CD2
         Tyr CE1, CE2
         Val CG1, CG2
+    Arguments:
+        directory (str): directory with PDBs to rename atoms
+        reference_pdb (str): Entry ID of the reference PDB. If None, use the 
+            first PDB file in the directory. {default: None}
+        output_dir (str): directory to save renamed PDBs to. If None, saves 
+            to the parent of directory with suffix _renamed.
     '''
     renaming_guide = {'ARG': [['NH1', 'NH2']],
                       'ASP': [['OD1', 'OD2']],

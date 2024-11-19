@@ -3,11 +3,11 @@ A package to create, visualize, and analyze  PDB-derived pseudo-ensembles.
 
 ## Install 
 '''
-conda create --name PE python=3.8
-conda activate PE
+conda create --name ensemble python=3.8
+conda activate ensemble
 python setup.py install
 conda install pandas=1.4.4
-pip install pypdb==2.3
+pip install rcsbsearchapi
 pip install biopandas==0.4.1
 pip install tqdm==4.66.1
 pip install biopython==1.82
@@ -16,6 +16,14 @@ conda install -c schrodinger pymol=2.4
 pip install chardet==5.2.0
 '''
 
+## Tutorial
+
+To test whether the package has been successfully installed, go to the tutorial folder and run:
+'''
+python3 simple_ensemble.py
+'''
+This will generate a folder with chymotrypsin pseudo-ensemble including PDB metadata and aligned structures.
+
 ## Documentation
-Documentation can be found:
+Documentation can be found here:
 [https://htmlpreview.github.io/?https://github.com/Herschlag-Lab/EnsemblePDB/blob/initial_code/doc/build/html/modules.html](https://htmlpreview.github.io/?https://github.com/Herschlag-Lab/EnsemblePDB/blob/initial_code/doc/build/html/modules.html)

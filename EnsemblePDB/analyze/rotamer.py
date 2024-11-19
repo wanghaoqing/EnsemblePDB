@@ -69,7 +69,16 @@ CHI4 = {
 
 def get_all_rotamers(directory, all_chains=False, chains=['A'], models= [0],output_directory=None,batch=50, restart=0):
     '''
-    Given a directory of pdb files, calculating all backbone and sidechain torsion angles
+    Given a directory of pdb files, calculating all backbone and sidechain torsion angles.
+    Arguments:
+        directory (str): path to a directory of PDB files.
+        all_chains (bool): calculate all chains present in the PDB (True) or only given chains (False).
+        chains (list of str): the list of chain names to calculate rotamers for. {default: ['A']}
+        output_directory: path to save calculated rotameric angles.
+     Returns:
+        dataframe with calculated rotameric angles combining all PDBs in the given directory.
+    Output:
+        a csv file with calculated rotameric angles combining all PDBs in the given directory.
     '''
     if output_directory is None:
         output_directory = str(Path(directory).parents[0])
@@ -98,9 +107,12 @@ def get_all_rotamers(directory, all_chains=False, chains=['A'], models= [0],outp
 def get_dihedrals(pdb, all_chains=False,chain_ids=['A'],models=[0],save_to=None):
     '''
     For a given pdb file and a protein chain, calculate all possible psi,phi and chi angles.
+    Arguments:
         pdb (str): path to PDB or cif file,
         chain_id (str): ID of the chain to calculate,
         models (list): for regular PDBs typically only one model is included and no specification is needed; for NMR or models from MD trajectories, specify the model number, otherwise only the first model is calculated {default: [0]}
+    Returns:
+        dataframe of rotameric angles
     '''
     parser = None
     if pdb[-3:] == 'pdb':
