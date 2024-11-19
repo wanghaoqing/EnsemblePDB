@@ -2,7 +2,7 @@
 A package to create, visualize, and analyze  PDB-derived pseudo-ensembles.
 
 ## Install 
-'''
+```
 conda create --name ensemble python=3.8
 conda activate ensemble
 python setup.py install
@@ -14,14 +14,13 @@ pip install biopython==1.82
 pip install scikit-learn==1.3.2
 conda install -c schrodinger pymol=2.4
 pip install chardet==5.2.0
-'''
+```
 
 ## Tutorial
-
 To test whether the package has been successfully installed, go to the tutorial folder and run:
-'''
+```
 python3 simple_ensemble.py
-'''
+```
 This will generate a folder with chymotrypsin pseudo-ensemble including PDB metadata and aligned structures.
 
 ## Documentation
