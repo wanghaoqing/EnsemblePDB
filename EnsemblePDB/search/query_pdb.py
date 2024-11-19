@@ -29,7 +29,7 @@ def query_by_ref_pdb(reference_pdb, reference_chains, label='MyProtein',
                          'alignment_type': "local", 'gap_open_score': -0.5, 'gap_extend_score': -0.1},
                      output_dir=".", min_length=20):
     '''
-    Will take sequence(s) or reference pdb chain(s) and will search 
+    Takes sequence(s) or reference pdb chain(s) and searches
     the PDB for structures of similar sequences. 
 
     Args: 

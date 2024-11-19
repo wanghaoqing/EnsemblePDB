@@ -10,29 +10,13 @@ Last edited:
 
 Last reviewed:
     2021-05-11 SD
-
-Todo:
-    print warning when cannot find data column?
-
-    check if same clusters predicted once PDB get its cluster running again...
-
-    TODO Check if stucture comparison worth it
-
-    TODO try to do search just the once??
-    AAA = pypdb.search_client.QueryGroup(
-    logical_operator=search_client.LogicalOperator.OR, queries=[search_operator])
-    prob have to change hit inerpretation a little...
 """
 from pathlib import Path
-# from pdb import Pdb
 import requests
 import json
 import os
 from tqdm import tqdm
-
 import pandas as pd
-# from Bio import AlignIO
-# import numpy as np
 from glob import glob
 
 from EnsemblePDB.utils import file_management, table_utils

@@ -1,10 +1,9 @@
-import sys,os
+import os
 from EnsemblePDB import search, build, refine, analyze
 from EnsemblePDB.utils import file_management
-import pandas as pd
 
 dir = os.path.dirname(os.path.abspath(__file__))
-output_dir = file_management.get_dir(os.path.join(dir,'test_ensembles_2'))
+output_dir = file_management.get_dir(os.path.join(dir,'test_ensembles'))
 
 protease = 'chymotrypsin'
 seq = 'CGVPAIQPVLSGLIVNGEEAVPGSWPWQVSLQDKTGFHFCGGSLINENWVVTAAHCGVTTSDVVVAGEFDQGSSSEKIQKLKIAKVFKNSKYNSLTINNDITLLKLSTAASFSQTVSAVCLPSASDDFAAGTTCVTTGWGLTRYANTPDRLQQASLPLLSNTNCKKYWGTKIKDAMICAGASGVSSCMGDSGGPLVCKKNGAWTLVGIVSWGSSTCSTSTPGVYARVTALVNWVQQTLAAN'
