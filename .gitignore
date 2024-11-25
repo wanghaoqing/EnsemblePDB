@@ -5,3 +5,4 @@ build/lib
 dist/
 example_output/
 *.pyc
+*.DS_Store

@@ -38,7 +38,9 @@ def search_seq(sequence, seq_id, search_output_file, chain_name, evalue=0.1):
     for hit in list(results(results_verbosity='verbose', return_type='polymer_entity')):
         match = hit['services'][0]["nodes"][0]['match_context'][0]
         match["Entry ID"] = hit['identifier'][:4]
-        data = data.append(match, ignore_index=True)
+        match = pd.Series(match).to_frame().T
+        data = pd.concat([data,match])
+        # data = data.append(match, ignore_index=True)
     # Write out search results
     f = open(search_output_file, "w")
     f.write(str(data))
