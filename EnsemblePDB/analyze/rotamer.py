@@ -185,6 +185,7 @@ def get_residue_dihedrals(chain, resid):
                     # print(dihedral_angles[key][chi],chi_angle)
                     dihedral_angles[key][chi] = pick_dihedral([dihedral_angles[key][chi],chi_angle])
                 dihedral_angles[key]['altloc'] = key
+                dihedral_angles[key]['occupancy'] = atoms[0].occupancy
                 # print(dihedral_angles)
     # angles
     df = pd.DataFrame.from_dict(dihedral_angles).T
