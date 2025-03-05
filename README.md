@@ -3,16 +3,16 @@ A package to create, visualize, and analyze  PDB-derived pseudo-ensembles.
 
 ## Install 
 ```
-conda create --name ensemble python=3.8
+conda create --name ensemble
 conda activate ensemble
 python setup.py install
 conda install pandas=1.4.4
+conda install schrodinger::pymol=3.1
 pip install rcsbsearchapi
 pip install biopandas==0.4.1
 pip install tqdm==4.66.1
 pip install biopython==1.82
 pip install scikit-learn==1.3.2
-conda install -c schrodinger pymol=2.4
 pip install chardet==5.2.0
 ```
 
