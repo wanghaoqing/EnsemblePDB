@@ -10,33 +10,58 @@ import pandas as pd
 import numpy as np
 
 
-def get_potential_from_dist(dist, nbins=300, temp=298, save_to=None):
-    '''
-    Generates knowlegde-based energy functions from a distribution.
+# def get_potential_from_dist(dist, nbins=300, temp=298, save_to=None):
+#     '''
+#     Generates knowlegde-based energy functions from a distribution.
+#     Arguments:
+#         dist (1D array-like): distribution of interaction parameter
+#         nbins (int): number of bins 
+#     Returns:
+#         pandas dataframe of potential energy in kcal/mol
+#     '''
+#     data = pd.DataFrame({'metric': dist})
+#     data['bins'] = pd.cut(data['metric'], nbins)
+#     f_random = 1/nbins
+#     f_bins_map = data.groupby('bins')['metric'].count()
+#     data['f_bin'] = data['bins'].apply(
+#         lambda x: f_bins_map[x]/f_bins_map.sum())
+#     data['E'] = data['f_bin'].apply(
+#         lambda x: -1.38*temp*6.02/4184*np.log(x/f_random))
+#     data['bin min'] = data['bins'].apply(lambda x: float(x.left))
+#     data['bin max'] = data['bins'].apply(lambda x: float(x.right))
+#     data['bin mid'] = data['bins'].apply(lambda x: float(x.mid))
+#     ret_data = data[['bin min', 'bin max',
+#                      'bin mid', 'f_bin', 'E']].astype('float').sort_values(by='bin mid').drop_duplicates()
+#     if save_to:
+#         ret_data.to_csv(save_to)
+#     return ret_data
+
+def get_potential_from_dist(dist, nbins=180,binrange=[0,360], temp=298, save_to=None):
+    """
     Arguments:
         dist (1D array-like): distribution of interaction parameter
-        nbins (int): number of bins 
+        nbins (int): number of bins
     Returns:
         pandas dataframe of potential energy in kcal/mol
-    '''
-    data = pd.DataFrame({'metric': dist})
-    data['bins'] = pd.cut(data['metric'], nbins)
+    """
+    data = pd.DataFrame({"metric": dist})
+    bins = np.linspace(binrange[0],binrange[1], nbins)
+    data["bins"] = pd.cut(data["metric"], bins=bins)
     f_random = 1/nbins
-    f_bins_map = data.groupby('bins')['metric'].count()
-    data['f_bin'] = data['bins'].apply(
+    f_bins_map = data.groupby("bins")["metric"].count()
+    data["f_bin"] = data["bins"].apply(
         lambda x: f_bins_map[x]/f_bins_map.sum())
-    data['E'] = data['f_bin'].apply(
+    data["E"] = data["f_bin"].apply(
         lambda x: -1.38*temp*6.02/4184*np.log(x/f_random))
-    data['bin min'] = data['bins'].apply(lambda x: float(x.left))
-    data['bin max'] = data['bins'].apply(lambda x: float(x.right))
-    data['bin mid'] = data['bins'].apply(lambda x: float(x.mid))
-    ret_data = data[['bin min', 'bin max',
-                     'bin mid', 'f_bin', 'E']].astype('float').sort_values(by='bin mid').drop_duplicates()
+    data["bin min"] = data["bins"].apply(lambda x: float(x.left))
+    data["bin max"] = data["bins"].apply(lambda x: float(x.right))
+    data["bin mid"] = data["bins"].apply(lambda x: float(x.mid))
+    ret_data = data[["bin min", "bin max",
+                     "bin mid", "f_bin", "E"]].astype("float").sort_values(by="bin mid").drop_duplicates()
     if save_to:
         ret_data.to_csv(save_to)
     return ret_data
-
-
+    
 def get_energy_from_stats(potential, measured, default_maximum=True,
                           set_maximum=None):
     '''

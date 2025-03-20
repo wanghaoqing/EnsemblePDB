@@ -14,135 +14,74 @@ from pathlib import Path
 from tqdm import tqdm
 from glob import glob
 
-from EnsemblePDB.utils.file_management import get_nonexistant_file
-
 # definition of chi angles
-# definition of chi angles
+# list of rotamers and their ranges follow Shapovalov & Dunbrack 2011
 CHI1 = {
-    'ARG': ['N','CA','CB', 'CG'],
-    'ASN': ['N','CA','CB', 'CG'],
-    'ASP': ['N','CA','CB', 'CG'],
-    'CYS': ['N','CA','CB', 'SG'],
-    'GLU': ['N','CA','CB', 'CG'],
-    'GLN': ['N','CA','CB', 'CG'],
-    'HIS': ['N','CA','CB', 'CG'],
-    'ILE': ['N','CA','CB', 'CG1'],
-    'LEU': ['N','CA','CB', 'CG'],
-    'LYS': ['N','CA','CB', 'CG'],
-    'MET': ['N','CA','CB', 'CG'],
-    'PHE': ['N','CA','CB', 'CG'],
-    'PRO': ['N','CA','CB', 'CG'],
-    'SER': ['N','CA','CB', 'OG'],
-    'THR': ['N','CA','CB', 'OG1'],
-    'TRP':['N','CA','CB', 'CG'],
-    'TYR': ['N','CA','CB', 'CG'],
-    'VAL': ['N','CA','CB', 'CG1']
+    'ARG': [['N','CA','CB', 'CG']],
+    'ASN': [['N','CA','CB', 'CG']],
+    'ASP': [['N','CA','CB', 'CG']],
+    'CYS': [['N','CA','CB', 'SG']],
+    'GLU': [['N','CA','CB', 'CG']],
+    'GLN': [['N','CA','CB', 'CG']],
+    'HIS': [['N','CA','CB', 'CG']],
+    'ILE': [['N','CA','CB', 'CG1'], ['N','CA','CB', 'CG2']],
+    'LEU': [['N','CA','CB', 'CG']],
+    'LYS': [['N','CA','CB', 'CG']],
+    'MET': [['N','CA','CB', 'CG']],
+    'PHE': [['N','CA','CB', 'CG']],
+    'PRO': [['N','CA','CB', 'CG']],
+    'SER': [['N','CA','CB', 'OG']],
+    'THR': [['N','CA','CB', 'OG1']],
+    'TRP':[['N','CA','CB', 'CG']],
+    'TYR': [['N','CA','CB', 'CG']],
+    'VAL': [['N','CA','CB', 'CG1'], ['N','CA','CB', 'CG2']]
 }
+
 CHI2 = {
-    'ARG': ['CA','CB','CG','CD'],
-    'GLU': ['CA','CB','CG','CD'],
-    'GLN': ['CA','CB','CG','CD'],
-    'LYS': ['CA','CB','CG','CD'],
-    'MET': ['CA','CB','CG','SD'],
-    'PRO': ['CA','CB', 'CG','CD'], 
-    'HIS': ['CA','CB', 'CG','ND1'],
-    'LEU': ['CA','CB', 'CG', 'CD1'], #nonrotameric
-    'ILE': ['CA','CB', 'CG1','CD1'], #nonrotameric
-    'ASN': ['CA','CB','CG', 'OD1'], #nonrotameric
-    'ASP': ['CA','CB','CG', 'OD1'], #nonrotameric
-    'PHE': ['CA','CB','CG','CD1'], #nonrotameric
-    'TRP': ['CA','CB','CG','CD1'], #nonrotameric
-    'TYR': ['CA','CB','CG','CD1'] #nonrotameric
+    'ARG': [['CA','CB','CG','CD']],
+    'GLU': [['CA','CB','CG','CD']],
+    'GLN': [['CA','CB','CG','CD']],
+    'LYS': [['CA','CB','CG','CD']],
+    'MET': [['CA','CB','CG','SD']],
+    'PRO': [['CA','CB', 'CG','CD']], 
+    'HIS': [['CA','CB', 'CG','ND1']],
+    'ILE': [['CA','CB', 'CG1','CD1']],
+    'LEU': [['CA','CB', 'CG', 'CD1'],['CA','CB', 'CG', 'CD2']], 
+    'ASN': [['CA','CB','CG', 'OD1']], #nonrotameric
+    'ASP': [['CA','CB','CG', 'OD1'],['CA','CB','CG', 'OD2']],#nonrotameric
+    'PHE': [['CA','CB','CG','CD1'],['CA','CB','CG','CD2']], #nonrotameric
+    'TRP': [['CA','CB','CG','CD1'],['CA','CB','CG','CD2']], #nonrotameric
+    'TYR': [['CA','CB','CG','CD1'],['CA','CB','CG','CD2']],#nonrotameric
     }
+
 CHI3 = {
-    'ARG': ['CB','CG','CD','NE'],
-    'LYS': ['CB','CG','CD','CE'],
-    'MET': ['CB','CG','SD','CE'],
-    'GLN': ['CB','CG','CD','OE1'],
-    'GLU': ['CB','CG','CD','OE1'],#nonrotameric
+    'ARG': [['CB','CG','CD','NE']],
+    'LYS': [['CB','CG','CD','CE']],
+    'MET': [['CB','CG','SD','CE']],
+    'GLU': [['CB','CG','CD','OE1'],['CB','CG','CD','OE1']], #nonrotameric
+    'GLN': [['CB','CG','CD','OE1']], #nonrotameric
 }
 CHI4 = {
-    'ARG': ['CG','CD','NE','CZ'],
-    'LYS': ['CG','CD','CE','NZ'],   
+    'ARG': [['CG','CD','NE','CZ']],
+    'LYS': [['CG','CD','CE','NZ']],   
 }
 
 
-def get_dihedrals(pdb, all_chains=False,chain_ids=['A'],models=[0],save_to=None):
-    '''
-    For a given pdb file and a protein chain, calculate all possible psi,phi and chi angles.
-        pdb (str): path to PDB file,
-        chain_id (str): ID of the chain to calculate,
-        models (list): for regular PDBs typically only one model is included and no specification is needed; for NMR or models from MD trajectories, specify the model number, otherwise only the first model is calculated {default: [0]}
-    Note: for any dihedral calculation, if any of the four atom is disorderd (multiconfomer), 
-            this angle will be skipped (np.nan).
-    '''
-    if pdb[:-3] == 'pdb':
-        parser = Bio.PDB.PDBParser(QUIET=True)
-    if pdb[:-3] == 'cif':
-        parser = Bio.PDB.MMCIFParser(QUIET=True)
-    else:
-        print('File type must be .pdb or .cif')
-    structure = parser.get_structure("_", pdb)
-    all_residue_angles = []
-    i = 0
-    # for model in tqdm(models, total=len(models),desc='Models'):
-    for model in models:
-        if model not in [x.get_id() for x in structure.get_models()]:
-            print(f'Specified model {model} not found in model ids')
-            continue
-        if all_chains:
-            chain_ids = [x.get_id() for x in structure[model].get_chains()]
-        for chain_id in chain_ids:
-            if chain_id not in [x.get_id() for x in structure[model].get_chains()]:
-                print(f'Specified chain {chain_id} not found in model {model} chains')
-                continue
-            chain = structure[model][chain_id]
-            for residue in chain.get_list():
-                resid = residue.get_id()
-                # skip if HETATM flag is true
-                if resid[0] != " ":
-                    continue
-                dihedral_angles = {}
-                dihedral_angles['model'] = model
-                dihedral_angles['chain'] = chain_id
-                dihedral_angles['residue_number'] = resid[1]
-                dihedral_angles['residue_name'] = residue.resname
-                dihedral_angles['insertion'] = resid[2]
-                dihedral_angles['phi'] = calcphi(chain, resid)
-                dihedral_angles['psi'] = calcpsi(chain, resid)
-                # calculate chi angles
-                for chi in ['chi1', 'chi2', 'chi3', 'chi4']:
-                    dihedral_angles[chi] = np.nan
-                for chi_atoms, chi_name in zip([CHI1, CHI2, CHI3, CHI4],
-                                            ['chi1', 'chi2', 'chi3', 'chi4']):
-                    if residue.resname not in chi_atoms.keys():
-                        continue
-                    atoms_to_find = chi_atoms[residue.resname]
-                    atoms_in_pdb = [a.name for a in residue.get_list()]
-                    # check if atom is in PDB & if they are disordered
-                    if any(list(map(lambda a: a not in atoms_in_pdb, atoms_to_find))):
-                        continue
-                    if any(list(map(lambda a: residue[a].is_disordered == 0,
-                                    atoms_to_find))):
-                        continue
-                    atomobj = [residue[a] for a in atoms_to_find]
-                    dihedral_angles[chi_name] = calcdihedral(*atomobj)
-                all_residue_angles.append(dihedral_angles)
-        if i != 0 and i % 50 == 0 and save_to:
-            df = pd.DataFrame.from_records(all_residue_angles)
-            df.to_csv(save_to+f'rotamers.csv')
-            # all_residue_angles = []
-        i = i + 1
-    df = pd.DataFrame.from_records(all_residue_angles)
-    if save_to:
-        df.to_csv(save_to+f'rotamers.csv')
-    return df
-
 def get_all_rotamers(directory, all_chains=False, chains=['A'], models= [0],output_directory=None,batch=50, restart=0):
+    '''
+    Given a directory of pdb files, calculating all backbone and sidechain torsion angles.
+    Arguments:
+        directory (str): path to a directory of PDB files.
+        all_chains (bool): calculate all chains present in the PDB (True) or only given chains (False).
+        chains (list of str): the list of chain names to calculate rotamers for. {default: ['A']}
+        output_directory: path to save calculated rotameric angles.
+     Returns:
+        dataframe with calculated rotameric angles combining all PDBs in the given directory.
+    Output:
+        a csv file with calculated rotameric angles combining all PDBs in the given directory.
+    '''
     if output_directory is None:
         output_directory = str(Path(directory).parents[0])
-    # all_rotamers = {}
-    # for chain in chains:
     rotamer = []
     all_pdbs = glob(directory+'/*.pdb')
     i = 0
@@ -161,13 +100,128 @@ def get_all_rotamers(directory, all_chains=False, chains=['A'], models= [0],outp
         rotamer.append(df)
         i += 1
     all_df = pd.concat(rotamer)
-        # all_rotamers[chain] = all_df
-    # fname = get_nonexistant_file(f'{output_directory}/all_residue_rotamers.csv')
-    # all_df.to_csv(fname)
     all_df.to_csv(f'{output_directory}/rotamers_{i}.csv')
     print(f'\nRotamer angle distributions saved to {output_directory}')
     return all_df
 
+def get_dihedrals(pdb, all_chains=False,chain_ids=['A'],models=[0],save_to=None):
+    '''
+    For a given pdb file and a protein chain, calculate all possible psi,phi and chi angles.
+    Arguments:
+        pdb (str): path to PDB or cif file,
+        chain_id (str): ID of the chain to calculate,
+        models (list): for regular PDBs typically only one model is included and no specification is needed; for NMR or models from MD trajectories, specify the model number, otherwise only the first model is calculated {default: [0]}
+    Returns:
+        dataframe of rotameric angles
+    '''
+    parser = None
+    if pdb[-3:] == 'pdb':
+        parser = Bio.PDB.PDBParser(QUIET=True)
+    elif pdb[-3:] == 'cif':
+        parser = Bio.PDB.MMCIFParser(QUIET=True)
+    else:
+        print('File type must be .pdb or .cif')
+        return
+    structure = parser.get_structure("_", pdb)
+    all_residue_angles = []
+    i = 0
+    # for model in tqdm(models, total=len(models),desc='Models'):
+    for model in models:
+        if model not in [x.get_id() for x in structure.get_models()]:
+            print(f'Specified model {model} not found in model ids')
+            continue
+        if all_chains:
+            chain_ids = [x.get_id() for x in structure[model].get_chains()]
+        for chain_id in chain_ids:
+            if chain_id not in [x.get_id() for x in structure[model].get_chains()]:
+                print(f'Specified chain {chain_id} not found in model {model} chains')
+                continue
+            chain = structure[model][chain_id]
+            for residue in chain.get_list():
+                resid = residue.get_id()
+                residue_dihedrals = get_residue_dihedrals(chain, resid)
+                all_residue_angles.append(residue_dihedrals)
+        if i != 0 and i % 50 == 0 and save_to:
+            df = pd.concat(all_residue_angles)
+            df.to_csv(save_to+f'rotamers.csv')
+        i = i + 1
+    df = pd.concat(all_residue_angles)
+    if save_to:
+        df.to_csv(save_to+f'rotamers.csv')
+    return df
+
+def get_residue_dihedrals(chain, resid):
+    '''
+    Calculate dihedrals for each residue. 
+    Returns a dataframe with psi, phi and chi angles.
+    '''
+    if resid[0] != " ": 
+        return
+    residue = chain[resid]
+    atoms_in_pdb = [a.name for a in residue.get_list()]
+    dihedral_angles = {'A':{"altloc":"A"}}
+    dihedral_angles['A']['phi']= calcphi(chain, resid)
+    dihedral_angles['A']['psi']= calcpsi(chain, resid)
+    for chi_atoms, chi in zip([CHI1, CHI2, CHI3, CHI4],['chi1', 'chi2', 'chi3', 'chi4']):
+        if residue.resname not in chi_atoms.keys(): continue
+        list_atoms_to_find = chi_atoms[residue.resname]
+        # find atoms in pdb
+        for atoms_to_find in list_atoms_to_find:
+            if any(list(map(lambda a: a not in atoms_in_pdb, atoms_to_find))):continue
+            #determine whether disordered
+            atomobj = [residue[x] for x in atoms_to_find]
+            altconf_dict = get_altconf_dict(atomobj)
+            for key, atoms in altconf_dict.items():
+                if len(atoms) != 4: continue
+                # print(resid, chi, atoms)
+                chi_angle = calcdihedral(*atoms)
+                if key not in dihedral_angles.keys():
+                    dihedral_angles[key] = {}
+                # handle cases where two torsion angle calculations are possible
+                # pick the one that is closer to 0
+                if chi not in dihedral_angles[key].keys():
+                    dihedral_angles[key][chi] = chi_angle
+                else:
+                    # print(dihedral_angles[key][chi],chi_angle)
+                    dihedral_angles[key][chi] = pick_dihedral([dihedral_angles[key][chi],chi_angle])
+                dihedral_angles[key]['altloc'] = key
+                dihedral_angles[key]['occupancy'] = atoms[0].occupancy
+                # print(dihedral_angles)
+    # angles
+    df = pd.DataFrame.from_dict(dihedral_angles).T
+    df.insert(loc=0, column='residue_number', value=residue.id[1])
+    df.insert(loc=1, column='residue_name', value=residue.resname)
+    df.insert(loc=2, column='insertion', value=residue.id[2])
+    return df
+
+def get_altconf_dict(atom_list):
+    '''
+    Handle disordered atoms
+    '''
+    altconfs = []
+    for x in atom_list:
+        if x.is_disordered():
+            altconfs += x.disordered_get_id_list()
+    altconfs = list(set(altconfs))
+    if len(altconfs)==0:
+        return {'A':atom_list}
+    altconf_dict ={}
+    for i,altloc in enumerate(altconfs):
+        alt_atom_list = []
+        for atom in atom_list:
+            # if not disordered, populate all conformers
+            if not atom.is_disordered():
+                alt_atom_list.append(atom)
+            else:
+                for a in atom:
+                    if a.altloc == altloc:
+                        alt_atom_list.append(a)
+        altconf_dict[altloc] = alt_atom_list
+    return altconf_dict
+
+def pick_dihedral(angles):
+    #pick the dihedral angle closest to 0
+    return angles[np.argmin([abs(x) for x in angles])]
 
 def get_residue_by_seqproximity(chain, reference_resid, position):
     '''
@@ -279,3 +333,45 @@ def calcdihedral(a1, a2, a3, a4):
     v4 = Bio.PDB.vectors.Vector(a4.coord)
     dihedral = Bio.PDB.vectors.calc_dihedral(v1, v2, v3, v4)
     return dihedral * 180/math.pi
+
+
+def normalize_nonrotamer(row):
+    if row['residue_name'] in ['ASN','TRP','HIS']:
+        row['chi2'] = normalize_180(row['chi2'])
+    elif row['residue_name'] == 'ASP':
+        row['chi2'] = normalize_90(row['chi2'])
+    elif row['residue_name'] == 'GLU':
+        row['chi3'] = normalize_90(row['chi3'])
+    elif row['residue_name'] in ['PHE','TYR']:
+        row['chi2'] =  normalize_150(row['chi2'])
+    elif row['residue_name'] == 'GLN':
+        row['chi3'] = normalize_180(row['chi3'])
+    return row
+
+def normalize_90(x):
+    if x>0 and x<=90:
+        return x
+    elif x>90 and x<=270:
+        return x-180
+    elif x>270:
+        return x-360
+    else:
+        return np.nan
+    
+def normalize_150(x):
+    if x>0 and x<=150:
+        return x
+    elif x>150 and x<=330:
+        return x-180
+    elif x>330:
+        return x-360
+    else:
+        return np.nan
+
+def normalize_180(x):
+    if x>0 and x<=180:
+        return x
+    elif x>180:
+        return x-360
+    else:
+        return np.nan

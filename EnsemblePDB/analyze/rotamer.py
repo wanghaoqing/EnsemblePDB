@@ -6,6 +6,7 @@ Authors:
     Siyuan Du (dusiyuan@stanford.edu)
 
 '''
+
 import Bio.PDB
 import numpy as np
 import pandas as pd
@@ -146,6 +147,8 @@ def get_dihedrals(pdb, all_chains=False,chain_ids=['A'],models=[0],save_to=None)
             df.to_csv(save_to+f'rotamers.csv')
         i = i + 1
     df = pd.concat(all_residue_angles)
+    df = pick_dihedrals(df)
+    df['normalized value'] = df.apply(lambda x: normalize_angles(x), axis=1)
     if save_to:
         df.to_csv(save_to+f'rotamers.csv')
     return df
@@ -159,12 +162,31 @@ def get_residue_dihedrals(chain, resid):
         return
     residue = chain[resid]
     atoms_in_pdb = [a.name for a in residue.get_list()]
-    dihedral_angles = {'A':{"altloc":"A"}}
-    dihedral_angles['A']['phi']= calcphi(chain, resid)
-    dihedral_angles['A']['psi']= calcpsi(chain, resid)
-    for chi_atoms, chi in zip([CHI1, CHI2, CHI3, CHI4],['chi1', 'chi2', 'chi3', 'chi4']):
-        if residue.resname not in chi_atoms.keys(): continue
-        list_atoms_to_find = chi_atoms[residue.resname]
+    dihedral_angles = []
+    # print(residue.resname, resid)
+    #backbone torsion
+    for torsion, func in zip(['phi','psi'],[get_phi_atoms,get_psi_atoms]):
+        atoms = func(chain, resid)
+        if type(atoms)==float: continue
+        altconf_dict = get_altconf_dict(atoms)
+        # print(altconf_dict)
+        for key, atoms in altconf_dict.items():
+            if len(atoms) != 4: continue
+            torsion_angle = calcdihedral(*atoms)
+            dihedral_angle = {
+                'torsion':torsion,
+                'value': torsion_angle,
+                'altloc': key,
+                'occupancy':min([a.occupancy for a in atoms])
+            }
+            # print([a.occupancy for a in atoms])
+            dihedral_angles.append(dihedral_angle)
+            # print(torsion_angle)
+
+    #sidechain torsion
+    for atoms, torsion in zip([CHI1, CHI2, CHI3, CHI4],['chi1', 'chi2', 'chi3', 'chi4']):
+        if residue.resname not in atoms.keys(): continue
+        list_atoms_to_find = atoms[residue.resname]
         # find atoms in pdb
         for atoms_to_find in list_atoms_to_find:
             if any(list(map(lambda a: a not in atoms_in_pdb, atoms_to_find))):continue
@@ -174,21 +196,18 @@ def get_residue_dihedrals(chain, resid):
             for key, atoms in altconf_dict.items():
                 if len(atoms) != 4: continue
                 # print(resid, chi, atoms)
-                chi_angle = calcdihedral(*atoms)
-                if key not in dihedral_angles.keys():
-                    dihedral_angles[key] = {}
-                # handle cases where two torsion angle calculations are possible
-                # pick the one that is closer to 0
-                if chi not in dihedral_angles[key].keys():
-                    dihedral_angles[key][chi] = chi_angle
-                else:
-                    # print(dihedral_angles[key][chi],chi_angle)
-                    dihedral_angles[key][chi] = pick_dihedral([dihedral_angles[key][chi],chi_angle])
-                dihedral_angles[key]['altloc'] = key
-                dihedral_angles[key]['occupancy'] = atoms[0].occupancy
-                # print(dihedral_angles)
+                torsion_angle = calcdihedral(*atoms)
+                dihedral_angle = {
+                'torsion':torsion,
+                'value': torsion_angle,
+                'altloc': key,
+                'occupancy':min([a.occupancy for a in atoms])
+                }
+                dihedral_angles.append(dihedral_angle)
     # angles
-    df = pd.DataFrame.from_dict(dihedral_angles).T
+    df = pd.DataFrame.from_records(dihedral_angles)
+    # duplicates = df.loc[df.duplicated(subset=['torsion','altloc'])]
+    # print(duplicates)                                  
     df.insert(loc=0, column='residue_number', value=residue.id[1])
     df.insert(loc=1, column='residue_name', value=residue.resname)
     df.insert(loc=2, column='insertion', value=residue.id[2])
@@ -219,9 +238,27 @@ def get_altconf_dict(atom_list):
         altconf_dict[altloc] = alt_atom_list
     return altconf_dict
 
-def pick_dihedral(angles):
-    #pick the dihedral angle closest to 0
-    return angles[np.argmin([abs(x) for x in angles])]
+def pick_dihedrals(data):
+    '''
+    For ambiguous atoms drop duplicate and pick only the torsion that is closest to 0
+    '''
+    def pick_dihedral(angles):
+        return angles[np.argmin([abs(x) for x in angles])]
+   
+    grouped = data.groupby(['residue_number','residue_name','insertion','torsion','altloc'])
+    new_groups = []
+    for key, group in grouped:
+        group = grouped.get_group(key)
+        if len(group) > 1:
+            # if two values are computed, pick the one that is closet to 0
+            new_group = group.iloc[0].copy()
+            new_group['value'] = pick_dihedral(group['value'].values)
+            new_groups.append(new_group)
+    new_groups = pd.concat(new_groups,axis=1).T
+    to_combine = data.drop_duplicates(subset=['residue_number','residue_name','insertion','torsion','altloc'],keep=False)
+    new_data = pd.concat([new_groups,to_combine])
+    # print(len(grouped),len(data),len(new_data))
+    return new_data
 
 def get_residue_by_seqproximity(chain, reference_resid, position):
     '''
@@ -264,7 +301,7 @@ def get_residue_by_seqproximity(chain, reference_resid, position):
     return neighbor_atom.get_parent().id
 
 
-def calcphi(chain, res_id):
+def get_phi_atoms(chain, res_id):
     res_id__1 = get_residue_by_seqproximity(
         chain=chain, reference_resid=res_id, position=-1)
     if not res_id__1:
@@ -276,20 +313,9 @@ def calcphi(chain, res_id):
         C_atom = chain[res_id]['C']
     except KeyError:
         return np.nan
-    # check if disordered
-    if (CO_atom.is_disordered() != 0 or N_atom.is_disordered() != 0 or
-            CA_atom.is_disordered() != 0 or C_atom.is_disordered() != 0):
-        # print('DEBUG: disordered atom')
-        return np.nan
-    C0 = Bio.PDB.vectors.Vector(CO_atom.coord)
-    N = Bio.PDB.vectors.Vector(N_atom.coord)
-    CA = Bio.PDB.vectors.Vector(CA_atom.coord)
-    C = Bio.PDB.vectors.Vector(C_atom.coord)
-    phi = Bio.PDB.vectors.calc_dihedral(C0, N, CA, C)
-    return phi * 180/math.pi
+    return CO_atom, N_atom, CA_atom, C_atom
 
-
-def calcpsi(chain, res_id):
+def get_psi_atoms(chain, res_id):
     res_id_1 = get_residue_by_seqproximity(
         chain=chain, reference_resid=res_id, position=1)
     if not res_id_1:
@@ -301,17 +327,7 @@ def calcpsi(chain, res_id):
         N1_atom = chain[res_id_1]['N']
     except KeyError:
         return np.nan
-    if (N_atom.is_disordered() != 0 or CA_atom.is_disordered() != 0 or
-            C_atom.is_disordered() != 0 or N1_atom.is_disordered() != 0):
-        # print('DEBUG: disordered atom')
-        return np.nan
-    N = Bio.PDB.vectors.Vector(chain[res_id]['N'].coord)
-    CA = Bio.PDB.vectors.Vector(chain[res_id]['CA'].coord)
-    C = Bio.PDB.vectors.Vector(chain[res_id]['C'].coord)
-    N1 = Bio.PDB.vectors.Vector(chain[res_id_1]['N'].coord)
-    psi = Bio.PDB.vectors.calc_dihedral(N, CA, C, N1)
-    return psi * 180/math.pi
-
+    return N_atom, CA_atom, C_atom, N1_atom
 
 def calcchi1(chain, res_id, chi1s=CHI1):
     atoms = CHI1[chain[res_id].resname]
@@ -325,7 +341,6 @@ def calcchi1(chain, res_id, chi1s=CHI1):
     chi1 = Bio.PDB.vectors.calc_dihedral(*atom_coords)
     return chi1 * 180/math.pi
 
-
 def calcdihedral(a1, a2, a3, a4):
     v1 = Bio.PDB.vectors.Vector(a1.coord)
     v2 = Bio.PDB.vectors.Vector(a2.coord)
@@ -335,43 +350,64 @@ def calcdihedral(a1, a2, a3, a4):
     return dihedral * 180/math.pi
 
 
-def normalize_nonrotamer(row):
-    if row['residue_name'] in ['ASN','TRP','HIS']:
-        row['chi2'] = normalize_180(row['chi2'])
-    elif row['residue_name'] == 'ASP':
-        row['chi2'] = normalize_90(row['chi2'])
-    elif row['residue_name'] == 'GLU':
-        row['chi3'] = normalize_90(row['chi3'])
-    elif row['residue_name'] in ['PHE','TYR']:
-        row['chi2'] =  normalize_150(row['chi2'])
-    elif row['residue_name'] == 'GLN':
-        row['chi3'] = normalize_180(row['chi3'])
-    return row
-
-def normalize_90(x):
-    if x>0 and x<=90:
-        return x
-    elif x>90 and x<=270:
-        return x-180
-    elif x>270:
-        return x-360
-    else:
-        return np.nan
+def normalize_angles(row):
+    '''
+    Normalize angles based on energy function ranges
+    '''
+    def normalize_90(x):
+        if x>0 and x<=90:
+            return x
+        elif x>90 and x<=270:
+            return x-180
+        elif x>270:
+            return x-360
+        else:
+            return np.nan
+    def normalize_150(x):
+        if x>0 and x<=150:
+            return x
+        elif x>150 and x<=330:
+            return x-180
+        elif x>330:
+            return x-360
+        else:
+            return np.nan
+    def normalize_180(x):
+        if x>0 and x<=180:
+            return x
+        elif x>180:
+            return x-360
+        else:
+            return np.nan
+    def normalize_360(x):
+        if x < 0:
+            return x+360
+        else:
+            return x
     
-def normalize_150(x):
-    if x>0 and x<=150:
-        return x
-    elif x>150 and x<=330:
-        return x-180
-    elif x>330:
-        return x-360
-    else:
-        return np.nan
+    value = row['value']
+    # first treat all sidechains to make them into 0-360
+    if row['torsion'] not in ['psi','phi']:
+        # print(row['value'],normalize_360(row['value']))
+        value =  normalize_360(row['value'])
+        # print(row['value'])
+    
+    #treat nonrotamers
+    # -180 to 180
+    if (row['residue_name'] in ['ASN','TRP','HIS']) and (row['torsion']=='chi2'):
+        return normalize_180(value)
+    elif row['residue_name'] == 'GLN' and (row['torsion']=='chi3'):
+        return normalize_180(value)
+    
+    #-90 to 90
+    elif (row['residue_name'] == 'ASP') and (row['torsion']=='chi2') :
+        return normalize_90(value)
+    elif (row['residue_name'] == 'GLU') and (row['torsion']=='chi3'):
+        return normalize_90(value)
 
-def normalize_180(x):
-    if x>0 and x<=180:
-        return x
-    elif x>180:
-        return x-360
+    #-30 to 150
+    elif (row['residue_name'] in ['PHE','TYR']) and (row['torsion']=='chi2'):
+        return  normalize_150(value)
+    
     else:
-        return np.nan
+        return value
