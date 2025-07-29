@@ -3,7 +3,7 @@ A package to create, visualize, and analyze  PDB-derived pseudo-ensembles.
 
 ## Install 
 ```
-conda create --name ensemble3 python=3.10
+conda create --name ensemble python=3.10
 conda activate ensemble
 python setup.py install
 conda install pandas=1.4.4
